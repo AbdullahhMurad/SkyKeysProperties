@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Contact Us – SkyKeys Properties{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <div class="container">
+    <span class="label">Get in Touch</span>
+    <h1>Contact Us</h1>
+    <p>Whether you're buying, selling or renting — our advisors are ready to guide you.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-layout">
+
+      <!-- Left: contact details + agent avatars -->
+      <div class="contact-meta reveal">
+
+        <div class="contact-meta-item">
+          <div class="label">Office</div>
+          <div class="value">Business Bay, Dubai</div>
+          <div class="sub">Office 412, Metropolis Tower<br>Dubai, UAE</div>
+        </div>
+
+        <div class="contact-meta-item">
+          <div class="label">Phone</div>
+          <div class="value"><a href="tel:+97143000000" style="color:inherit;">+971 4 300 0000</a></div>
+          <div class="sub">Sun – Thu, 9am – 6pm</div>
+        </div>
+
+        <div class="contact-meta-item">
+          <div class="label">Email</div>
+          <div class="value"><a href="mailto:info@skykeys.ae" style="color:inherit;">info@skykeys.ae</a></div>
+          <div class="sub">We reply within 24 hours</div>
+        </div>
+
+        {% if employees %}
+        <div>
+          <div class="label" style="margin-bottom:1rem;">Our Advisors</div>
+          {% for emp in employees %}
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+            <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:var(--cream-dk); flex-shrink:0; border:1px solid var(--border);">
+              {% if emp.image_filename %}
+                <img src="{{ url_for('static', path='images/employees/' + emp.image_filename) }}"
+                     alt="{{ emp.first_name }}"
+                     style="width:100%; height:100%; object-fit:cover; object-position:top;"
+                     onerror="this.style.display='none'" />
+              {% endif %}
+            </div>
+            <div>
+              <div style="font-size:0.82rem; font-weight:500;">{{ emp.first_name }} {{ emp.last_name }}</div>
+              {% if emp.job_title %}
+                <div style="font-size:0.72rem; color:var(--muted); font-style:italic;">{{ emp.job_title }}</div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- Right: form -->
+      <div class="reveal">
+        <span class="label" style="display:block; margin-bottom:1.5rem;">Send a Message</span>
+
+        <div id="formSuccess" class="form-success">Your message has been sent. We'll be in touch within 24 hours.</div>
+        <div id="formError" class="form-error"></div>
+
+        <form id="contactForm" class="contact-form" novalidate>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="name">Full Name *</label>
+              <input class="form-control" type="text" id="name" name="name" placeholder="John Smith" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address *</label>
+              <input class="form-control" type="email" id="email" name="email" placeholder="john@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone Number</label>
+              <input class="form-control" type="tel" id="phone" name="phone" placeholder="+971 50 000 0000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="subject">Subject</label>
+              <select class="form-control" id="subject" name="subject">
+                <option value="General Inquiry">General Inquiry</option>
+                <option value="Looking to Buy">Looking to Buy</option>
+                <option value="Looking to Rent">Looking to Rent</option>
+                <option value="List my Property">List my Property</option>
+                <option value="Property Valuation">Property Valuation</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="message">Message *</label>
+            <textarea class="form-control" id="message" name="message"
+              placeholder="Tell us about the property you're looking for, your timeline, and any other details…"
+              required></textarea>
+          </div>
+
+          <button type="submit" class="btn-black" style="width:100%; justify-content:center;">Send Message</button>
+
+          <p style="font-size:0.68rem; color:var(--muted); text-align:center;">
+            By submitting you agree to be contacted by our team regarding your enquiry.
+          </p>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

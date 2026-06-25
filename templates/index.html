@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}SkyKeys Properties – Luxury Real Estate UAE{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero: full-screen image/video with italic headline ──── -->
+<section class="hero">
+  <img class="hero-img"
+    src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=80"
+    alt="Luxury villa in Dubai" />
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h3>Representing exceptional properties<br>in Dubai and Abu Dhabi</h3>
+    <a href="/properties" class="hero-cta">View Portfolio</a>
+  </div>
+</section>
+
+<!-- ── Intro text block ────────────────────────────────────── -->
+<div class="intro-block">
+  <div class="container">
+    <h2>SkyKeys Properties is not your average real estate brokerage.</h2>
+    <p>
+      Founded by seasoned UAE market specialists, SkyKeys is built on trust, alignment, and calm authority.
+      We operate with a clear mission: to match buyers, sellers, and investors with properties that truly fit —
+      not just in size or price, but in timing, lifestyle, and long-term value. Our network is handpicked.
+      Our advice is honest; when it's time to move, we don't hesitate.
+    </p>
+    <div style="margin-top: 2rem;">
+      <a href="/about" class="link-arrow">Who Are We? →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Featured properties ─────────────────────────────────── -->
+{% if featured_properties %}
+<section class="section">
+  <div class="container">
+    <span class="section-label">Featured Properties</span>
+
+    <div class="prop-grid">
+      {% for prop in featured_properties %}
+      <a href="/properties/{{ prop.id }}" class="prop-card reveal">
+        <div class="prop-card-img">
+          {% if prop.image_filename %}
+            <img src="{{ url_for('static', path='images/properties/' + prop.image_filename) }}"
+                 alt="{{ prop.title or prop.master_community }}"
+                 onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'><svg width=38 height=38 fill=none stroke=currentColor stroke-width=1.5 viewBox=\'0 0 24 24\'><path d=\'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\'/></svg></div>'" />
+          {% else %}
+            <div class="img-placeholder">
+              <svg width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              </svg>
+            </div>
+          {% endif %}
+          <span class="prop-badge {{ 'prop-badge-rent' if prop.listing_type == 'rent' else '' }}">
+            {{ 'For Rent' if prop.listing_type == 'rent' else 'For Sale' }}
+          </span>
+        </div>
+
+        <div class="prop-card-body">
+          <div class="prop-card-title">{{ prop.title or (prop.bedrooms|string + '-Bedroom in ' + prop.master_community) }}</div>
+          <div class="prop-price-row">
+            <span class="prop-price-number">{{ "{:,.0f}".format(prop.price) }}</span>
+            <span class="prop-price-label">AED{% if prop.listing_type == 'rent' %} / yr{% endif %}</span>
+          </div>
+          <div class="prop-specs">
+            <div class="spec"><strong>{{ prop.bedrooms }}</strong> Bedrooms</div>
+            <div class="spec">•</div>
+            <div class="spec"><strong>{{ prop.bathrooms }}</strong> Bathrooms</div>
+            <div class="spec">•</div>
+            <div class="spec"><strong>{{ "{:,.0f}".format(prop.square_feet) }}</strong> Sq.Ft.</div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top: 2.5rem;">
+      <a href="/properties" class="link-arrow">View All Properties →</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── Stats row ───────────────────────────────────────────── -->
+<div class="stats-row">
+  <div class="stat-col">
+    <span class="stat-number">{{ stats.for_sale }}+</span>
+    <span class="stat-label">Properties For Sale</span>
+  </div>
+  <div class="stat-col">
+    <span class="stat-number">{{ stats.for_rent }}+</span>
+    <span class="stat-label">Properties For Rent</span>
+  </div>
+  <div class="stat-col">
+    <span class="stat-number">{{ stats.emirates }}</span>
+    <span class="stat-label">Emirates Covered</span>
+  </div>
+</div>
+
+<!-- ── Work alongside us dark band ────────────────────────── -->
+<div class="dark-band">
+  <div class="container">
+    <span class="label" style="color:rgba(255,255,255,0.4); margin-bottom:1.5rem; display:block;">Work With Us</span>
+    <h2>Work Alongside Us</h2>
+    <p style="margin-top:1rem; margin-bottom:2rem;">
+      Are you a community expert or serial networker looking to transform your local knowledge into a rewarding real estate career?
+      At SkyKeys Properties, we value individuals who understand people, places, and potential. Your existing network and community
+      insights could be the foundation for exceptional success in luxury property.
+    </p>
+    <a href="/contactus" class="btn-outline" style="color:var(--white); border-color:rgba(255,255,255,0.4);">Contact Us</a>
+  </div>
+</div>
+
+{% endblock %}

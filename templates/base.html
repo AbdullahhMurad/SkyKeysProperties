@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}SkyKeys Properties{% endblock %}</title>
+  <meta name="description" content="{% block description %}Representing exceptional properties in Dubai, Abu Dhabi and Sharjah.{% endblock %}" />
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="page-body">
+
+  <!-- ── Navbar ─────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">SkyKeys Properties</a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/properties">Properties</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contactus">Contact Us</a></li>
+    </ul>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-brand">SkyKeys Properties</div>
+          <p class="footer-tagline">Representing exceptional residential properties across the UAE.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Navigate</div>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/properties">Properties</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contactus">Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Contact</div>
+          <ul class="footer-links">
+            <li><a href="mailto:info@skykeys.ae">info@skykeys.ae</a></li>
+            <li><a href="tel:+97143000000">+971 4 300 0000</a></li>
+            <li style="color:rgba(255,255,255,0.35); cursor:default;">Office 412, Business Bay<br>Dubai, UAE</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; {{ year }} SkyKeys Properties. All rights reserved.</span>
+        <span>DLD Licence #12345</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', path='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

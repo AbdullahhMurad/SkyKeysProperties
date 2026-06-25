@@ -1,0 +1,9 @@
+{% macro img_src(value, subfolder) %}
+{%- if value -%}
+  {%- if value.startswith('http://') or value.startswith('https://') -%}
+    {{ value }}
+  {%- else -%}
+    /static/images/{{ subfolder }}/{{ value }}
+  {%- endif -%}
+{%- endif -%}
+{% endmacro %}
