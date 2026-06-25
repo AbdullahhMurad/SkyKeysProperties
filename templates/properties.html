@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Properties – SkyKeys{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <div class="container">
+    <span class="label">Our Portfolio</span>
+    <h1>Properties</h1>
+    <p>Curated residential listings — villas, townhouses and apartments across the UAE's finest communities.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Filter tabs -->
+    <div class="filter-bar">
+      <button class="filter-tab {{ 'active' if not active_filter }}" data-filter="all">All</button>
+      <button class="filter-tab {{ 'active' if active_filter == 'sale' }}" data-filter="sale">For Sale</button>
+      <button class="filter-tab {{ 'active' if active_filter == 'rent' }}" data-filter="rent">For Rent</button>
+    </div>
+
+    {% if properties %}
+    <div class="prop-grid">
+      {% for prop in properties %}
+      <div class="prop-card-wrap reveal" data-type="{{ prop.listing_type }}">
+        <a href="/properties/{{ prop.id }}" class="prop-card">
+
+          <div class="prop-card-img">
+            {% if prop.image_filename %}
+              <img src="{{ url_for('static', path='images/properties/' + prop.image_filename) }}"
+                   alt="{{ prop.title or prop.master_community }}"
+                   onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'><svg width=38 height=38 fill=none stroke=currentColor stroke-width=1.5 viewBox=\'0 0 24 24\'><path d=\'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\'/></svg></div>'" />
+            {% else %}
+              <div class="img-placeholder">
+                <svg width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                </svg>
+              </div>
+            {% endif %}
+            <span class="prop-badge {{ 'prop-badge-rent' if prop.listing_type == 'rent' else '' }}">
+              {{ 'For Rent' if prop.listing_type == 'rent' else 'For Sale' }}
+            </span>
+          </div>
+
+          <div class="prop-card-body">
+            <div class="prop-location">{{ prop.master_community }}{% if prop.sub_community %}, {{ prop.sub_community }}{% endif %} · {{ prop.emirate }}</div>
+            <div class="prop-card-title">{{ prop.title or (prop.bedrooms|string + '-Bedroom Property') }}</div>
+            <div class="prop-price-row">
+              <span class="prop-price-number">{{ "{:,.0f}".format(prop.price) }}</span>
+              <span class="prop-price-label">AED{% if prop.listing_type == 'rent' %} / yr{% endif %}</span>
+            </div>
+            <div class="prop-specs">
+              <div class="spec"><strong>{{ prop.bedrooms }}</strong>&nbsp;Bedrooms</div>
+              <div class="spec">•</div>
+              <div class="spec"><strong>{{ prop.bathrooms }}</strong>&nbsp;Bathrooms</div>
+              <div class="spec">•</div>
+              <div class="spec"><strong>{{ "{:,.0f}".format(prop.square_feet) }}</strong>&nbsp;Sq.Ft.</div>
+            </div>
+          </div>
+
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <h3>No listings found</h3>
+      <p>Try switching to a different category above.</p>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <h3>No listings yet</h3>
+      <p>Check back soon — new properties are added regularly.</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const activeFilter = "{{ active_filter or '' }}";
+  if (activeFilter) {
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.filter === activeFilter);
+    });
+  }
+</script>
+{% endblock %}
