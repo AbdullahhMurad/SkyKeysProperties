@@ -7,7 +7,6 @@ from app.core.config import settings
 
 
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-# "postgresql://avnadmin:REMOVED_AIVEN_PASSWORD@pg-1f53fee4-theclassicdope1-f1fe.h.aivencloud.com:28191/defaultdb?sslmode=require"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
