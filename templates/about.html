@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import img_src %}
 {% block title %}About – SkyKeys Properties{% endblock %}
 
 {% block content %}
@@ -75,7 +76,7 @@
       <div class="founder-card reveal">
         {% if emp.image_filename %}
           <img class="founder-img"
-               src="{{ url_for('static', path='images/employees/' + emp.image_filename) }}"
+               src="{{ img_src(emp.image_filename, 'employees') }}"
                alt="{{ emp.first_name }} {{ emp.last_name }}"
                onerror="this.style.background='var(--cream-dk)'; this.style.minHeight='360px';" />
         {% else %}
