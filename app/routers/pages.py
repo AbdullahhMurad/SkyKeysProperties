@@ -94,3 +94,20 @@ def contact_page(request: Request, db: Session = Depends(get_db)):
         "employees": employees,
         "year":      datetime.now().year,
     })
+
+
+@router.get("/debug-employees")
+def debug_employees(db: Session = Depends(get_db)):
+    from app.models.models import Employee
+    employees = db.query(Employee).all()
+    return [
+        {
+            "id": e.id,
+            "first_name": e.first_name,
+            "image_filename": e.image_filename,
+            "has_colon_slash": "://" in (e.image_filename or ""),
+            "length": len(e.image_filename) if e.image_filename else 0,
+            "repr": repr(e.image_filename)
+        }
+        for e in employees
+    ]
