@@ -70,14 +70,15 @@
     <span class="section-label">Meet the Team</span>
 
     <!-- Founders / primary team members -->
-    <div class="founders-grid">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;">
       {% for emp in employees %}
       <div class="founder-card reveal">
         {% if emp.image_filename %}
           <img class="founder-img"
+               style="width:100%; height:360px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;"
                src="{{ emp.image_filename if '://' in emp.image_filename else '/static/images/employees/' + emp.image_filename }}"
                alt="{{ emp.first_name }} {{ emp.last_name }}"
-               onerror="this.style.background='var(--cream-dk)'; this.style.minHeight='360px';" />
+               onerror="this.style.background='var(--cream-dk)';" />
         {% else %}
           <div class="founder-img img-placeholder" style="min-height:360px;">
             <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">

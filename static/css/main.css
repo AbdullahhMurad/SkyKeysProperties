@@ -458,17 +458,19 @@ h5 { font-size: 0.95rem; }
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   margin-bottom: 80px;
+  align-items: start;
 }
 
 .founder-card { display: flex; flex-direction: column; }
 
 .founder-img {
   width: 100%;
-  aspect-ratio: 3/4;
+  height: 420px;
   object-fit: cover;
   object-position: top;
   background: var(--cream-dk);
   margin-bottom: 20px;
+  display: block;
 }
 
 .founder-name {
