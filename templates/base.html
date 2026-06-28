@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}SkyKeys Properties{% endblock %}</title>
   <meta name="description" content="{% block description %}Representing exceptional properties in Dubai, Abu Dhabi and Sharjah.{% endblock %}" />
-  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}?v={{ cache_version }}" />
   {% block extra_head %}{% endblock %}
 </head>
 <body class="page-body">
