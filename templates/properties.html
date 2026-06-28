@@ -29,8 +29,10 @@
 
           <div class="prop-card-img">
             {% if prop.image_filename %}
-              <img src="{{ url_for('static', path='images/properties/' + prop.image_filename) }}"
-                   alt="{{ prop.title or prop.master_community }}"
+            
+            
+            <img src="{{ prop.image_filename if '://' in prop.image_filename else '/static/images/properties/' + prop.image_filename }}"
+            alt="{{ prop.title or prop.master_community }}"
                    onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'><svg width=38 height=38 fill=none stroke=currentColor stroke-width=1.5 viewBox=\'0 0 24 24\'><path d=\'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\'/></svg></div>'" />
             {% else %}
               <div class="img-placeholder">
