@@ -282,7 +282,7 @@ h5 { font-size: 0.95rem; }
 
 .prop-card-img {
   position: relative;
-  height: 420px;
+  height: 120px;
   overflow: hidden;
   background: var(--cream-dk);
 }
