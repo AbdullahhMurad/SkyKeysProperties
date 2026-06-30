@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – SkyKeys Properties</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}" />
+  <style>
+    .admin-shell { display: flex; min-height: 100vh; }
+
+    .admin-sidebar {
+      width: 220px;
+      background: var(--black);
+      color: var(--white);
+      padding: 28px 20px;
+      flex-shrink: 0;
+    }
+
+    .admin-logo { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom: 2rem; }
+    .admin-logo span { display:block; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-top:4px; }
+
+    .admin-nav { display: flex; flex-direction: column; gap: 4px; }
+    .admin-nav button {
+      text-align: left;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.8rem;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .admin-nav button:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .admin-nav button.active { color: #fff; background: rgba(255,255,255,0.1); }
+
+    .admin-main { flex: 1; padding: 36px 44px; background: var(--cream); }
+
+    .admin-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; }
+    .admin-user { font-size: 0.8rem; color: var(--muted); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .admin-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--border); }
+    .admin-table th {
+      text-align: left;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--cream-dk);
+    }
+    .admin-table td { padding: 12px 14px; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .admin-table tr:last-child td { border-bottom: none; }
+
+    .row-actions { display: flex; gap: 8px; }
+    .row-actions button {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .row-actions .edit-btn:hover { border-color: var(--black); }
+    .row-actions .delete-btn { color: #c0392b; border-color: #e0c3c0; }
+    .row-actions .delete-btn:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+
+    .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 3000;
+      background: rgba(0,0,0,0.5);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--white);
+      max-width: 560px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 32px;
+      border: 1px solid var(--border);
+    }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-grid .full { grid-column: 1 / -1; }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 4000;
+      background: var(--black); color: #fff;
+      padding: 12px 20px; font-size: 0.8rem;
+      display: none;
+    }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">SkyKeys<span>Admin Portal</span></div>
+    <nav class="admin-nav">
+      <button class="nav-btn active" data-panel="properties-panel">Properties</button>
+      <button class="nav-btn" data-panel="employees-panel">Employees</button>
+    </nav>
+    <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <a href="/" style="font-size:0.75rem; color:rgba(255,255,255,0.5);">&larr; View Website</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <div class="admin-topbar">
+      <h1 style="font-size:1.5rem;">Dashboard</h1>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span class="admin-user">Signed in as <strong>{{ current_admin.username }}</strong></span>
+        <button id="logoutBtn" class="btn-outline" style="padding:0.5rem 1.2rem;">Log Out</button>
+      </div>
+    </div>
+
+    <!-- ── Properties panel ──────────────────────────────────── -->
+    <section class="panel active" id="properties-panel">
+      <div class="panel-header">
+        <h2 style="font-size:1.1rem;">Properties</h2>
+        <button class="btn-black" onclick="openPropertyModal()">+ Add Property</button>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Title</th><th>Emirate</th><th>Type</th><th>Price</th><th>Active</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="propertiesTableBody">
+          <tr><td colspan="7" style="text-align:center; color:var(--muted);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Employees panel ───────────────────────────────────── -->
+    <section class="panel" id="employees-panel">
+      <div class="panel-header">
+        <h2 style="font-size:1.1rem;">Employees</h2>
+        <button class="btn-black" onclick="openEmployeeModal()">+ Add Employee</button>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Job Title</th><th>Nationality</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="employeesTableBody">
+          <tr><td colspan="5" style="text-align:center; color:var(--muted);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── Property Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="propertyModalOverlay">
+  <div class="modal-box">
+    <h3 id="propertyModalTitle" style="margin-bottom:1.2rem;">Add Property</h3>
+    <form id="propertyForm" class="modal-grid">
+      <input type="hidden" id="prop-id" />
+
+      <div class="form-group full">
+        <label class="form-label">Title</label>
+        <input class="form-control" id="prop-title" placeholder="e.g. Exclusive | Golf Course View" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Emirate *</label>
+        <input class="form-control" id="prop-emirate" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Listing Type *</label>
+        <select class="form-control" id="prop-listing_type" required>
+          <option value="sale">For Sale</option>
+          <option value="rent">For Rent</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Master Community *</label>
+        <input class="form-control" id="prop-master_community" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sub Community</label>
+        <input class="form-control" id="prop-sub_community" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Bedrooms *</label>
+        <input class="form-control" type="number" id="prop-bedrooms" min="0" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bathrooms *</label>
+        <input class="form-control" type="number" id="prop-bathrooms" min="0" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Square Feet *</label>
+        <input class="form-control" type="number" step="0.01" id="prop-square_feet" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price (AED) *</label>
+        <input class="form-control" type="number" step="0.01" id="prop-price" required />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Image URL</label>
+        <input class="form-control" id="prop-image_filename" placeholder="https://res.cloudinary.com/..." />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="prop-description" style="min-height:80px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Featured?</label>
+        <select class="form-control" id="prop-is_featured">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Active?</label>
+        <select class="form-control" id="prop-is_active">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+
+      <div class="full" style="display:flex; gap:10px; margin-top:8px;">
+        <button type="submit" class="btn-black">Save Property</button>
+        <button type="button" class="btn-outline" onclick="closePropertyModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Employee Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="employeeModalOverlay">
+  <div class="modal-box">
+    <h3 id="employeeModalTitle" style="margin-bottom:1.2rem;">Add Employee</h3>
+    <form id="employeeForm" class="modal-grid">
+      <input type="hidden" id="emp-id" />
+
+      <div class="form-group">
+        <label class="form-label">First Name *</label>
+        <input class="form-control" id="emp-first_name" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name *</label>
+        <input class="form-control" id="emp-last_name" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Middle Name</label>
+        <input class="form-control" id="emp-middle_name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nationality *</label>
+        <input class="form-control" id="emp-nationality" required />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Job Title</label>
+        <input class="form-control" id="emp-job_title" />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Image URL</label>
+        <input class="form-control" id="emp-image_filename" placeholder="https://res.cloudinary.com/..." />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" id="emp-email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input class="form-control" id="emp-phone" />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Bio</label>
+        <textarea class="form-control" id="emp-bio" style="min-height:80px;"></textarea>
+      </div>
+
+      <div class="full" style="display:flex; gap:10px; margin-top:8px;">
+        <button type="submit" class="btn-black">Save Employee</button>
+        <button type="button" class="btn-outline" onclick="closeEmployeeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Navigation between panels ─────────────────────────────
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.panel).classList.add('active');
+    });
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Logout ─────────────────────────────────────────────────
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    window.location.href = '/admin/login';
+  });
+
+  // ── Generic fetch helper with 401 handling ────────────────
+  async function apiFetch(url, options = {}) {
+    const res = await fetch(url, { credentials: 'same-origin', ...options });
+    if (res.status === 401) {
+      window.location.href = '/admin/login';
+      throw new Error('Unauthorized');
+    }
+    return res;
+  }
+
+  // ============================================================
+  // PROPERTIES
+  // ============================================================
+  let properties = [];
+
+  async function loadProperties() {
+    const res = await apiFetch('/api/properties/?is_featured=');
+    // is_featured filter empty -> ignored server side, fetch ALL incl inactive separately
+    const all = await apiFetch('/api/properties/');
+    properties = await all.json();
+    renderProperties();
+  }
+
+  function renderProperties() {
+    const tbody = document.getElementById('propertiesTableBody');
+    if (!properties.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted);">No properties yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = properties.map(p => `
+      <tr>
+        <td>${p.id}</td>
+        <td>${p.title || p.master_community}</td>
+        <td>${p.emirate}</td>
+        <td>${p.listing_type === 'sale' ? 'For Sale' : 'For Rent'}</td>
+        <td>AED ${Number(p.price).toLocaleString()}</td>
+        <td>${p.is_active ? 'Yes' : 'No'}</td>
+        <td>
+          <div class="row-actions">
+            <button class="edit-btn" onclick="editProperty(${p.id})">Edit</button>
+            <button class="delete-btn" onclick="deleteProperty(${p.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openPropertyModal() {
+    document.getElementById('propertyForm').reset();
+    document.getElementById('prop-id').value = '';
+    document.getElementById('propertyModalTitle').textContent = 'Add Property';
+    document.getElementById('propertyModalOverlay').classList.add('open');
+  }
+
+  function closePropertyModal() {
+    document.getElementById('propertyModalOverlay').classList.remove('open');
+  }
+
+  function editProperty(id) {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('prop-id').value = p.id;
+    document.getElementById('prop-title').value = p.title || '';
+    document.getElementById('prop-emirate').value = p.emirate;
+    document.getElementById('prop-listing_type').value = p.listing_type;
+    document.getElementById('prop-master_community').value = p.master_community;
+    document.getElementById('prop-sub_community').value = p.sub_community || '';
+    document.getElementById('prop-bedrooms').value = p.bedrooms;
+    document.getElementById('prop-bathrooms').value = p.bathrooms;
+    document.getElementById('prop-square_feet').value = p.square_feet;
+    document.getElementById('prop-price').value = p.price;
+    document.getElementById('prop-image_filename').value = p.image_filename || '';
+    document.getElementById('prop-description').value = p.description || '';
+    document.getElementById('prop-is_featured').value = String(p.is_featured);
+    document.getElementById('prop-is_active').value = String(p.is_active);
+    document.getElementById('propertyModalTitle').textContent = 'Edit Property';
+    document.getElementById('propertyModalOverlay').classList.add('open');
+  }
+
+  async function deleteProperty(id) {
+    if (!confirm('Delete this property? This cannot be undone.')) return;
+    const res = await apiFetch(`/api/properties/${id}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) {
+      showToast('Property deleted');
+      loadProperties();
+    } else {
+      showToast('Failed to delete property');
+    }
+  }
+
+  document.getElementById('propertyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('prop-id').value;
+
+    const payload = {
+      title:             document.getElementById('prop-title').value || null,
+      emirate:           document.getElementById('prop-emirate').value,
+      listing_type:      document.getElementById('prop-listing_type').value,
+      master_community:  document.getElementById('prop-master_community').value,
+      sub_community:     document.getElementById('prop-sub_community').value || null,
+      bedrooms:          parseInt(document.getElementById('prop-bedrooms').value),
+      bathrooms:         parseInt(document.getElementById('prop-bathrooms').value),
+      square_feet:       parseFloat(document.getElementById('prop-square_feet').value),
+      price:             parseFloat(document.getElementById('prop-price').value),
+      image_filename:    document.getElementById('prop-image_filename').value || null,
+      description:       document.getElementById('prop-description').value || null,
+      is_featured:       document.getElementById('prop-is_featured').value === 'true',
+      is_active:         document.getElementById('prop-is_active').value === 'true',
+    };
+
+    const url = id ? `/api/properties/${id}` : '/api/properties/';
+    const method = id ? 'PATCH' : 'POST';
+
+    const res = await apiFetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showToast(id ? 'Property updated' : 'Property created');
+      closePropertyModal();
+      loadProperties();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast('Error: ' + (err.detail || 'Could not save property'));
+    }
+  });
+
+  // ============================================================
+  // EMPLOYEES
+  // ============================================================
+  let employees = [];
+
+  async function loadEmployees() {
+    const res = await apiFetch('/api/employees/');
+    employees = await res.json();
+    renderEmployees();
+  }
+
+  function renderEmployees() {
+    const tbody = document.getElementById('employeesTableBody');
+    if (!employees.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">No employees yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = employees.map(e => `
+      <tr>
+        <td>${e.id}</td>
+        <td>${e.first_name} ${e.last_name}</td>
+        <td>${e.job_title || '—'}</td>
+        <td>${e.nationality}</td>
+        <td>
+          <div class="row-actions">
+            <button class="edit-btn" onclick="editEmployee(${e.id})">Edit</button>
+            <button class="delete-btn" onclick="deleteEmployee(${e.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openEmployeeModal() {
+    document.getElementById('employeeForm').reset();
+    document.getElementById('emp-id').value = '';
+    document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+    document.getElementById('employeeModalOverlay').classList.add('open');
+  }
+
+  function closeEmployeeModal() {
+    document.getElementById('employeeModalOverlay').classList.remove('open');
+  }
+
+  function editEmployee(id) {
+    const e = employees.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('emp-id').value = e.id;
+    document.getElementById('emp-first_name').value = e.first_name;
+    document.getElementById('emp-last_name').value = e.last_name;
+    document.getElementById('emp-middle_name').value = e.middle_name || '';
+    document.getElementById('emp-nationality').value = e.nationality;
+    document.getElementById('emp-job_title').value = e.job_title || '';
+    document.getElementById('emp-image_filename').value = e.image_filename || '';
+    document.getElementById('emp-email').value = e.email || '';
+    document.getElementById('emp-phone').value = e.phone || '';
+    document.getElementById('emp-bio').value = e.bio || '';
+    document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+    document.getElementById('employeeModalOverlay').classList.add('open');
+  }
+
+  async function deleteEmployee(id) {
+    if (!confirm('Delete this employee? This cannot be undone.')) return;
+    const res = await apiFetch(`/api/employees/${id}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) {
+      showToast('Employee deleted');
+      loadEmployees();
+    } else {
+      showToast('Failed to delete employee');
+    }
+  }
+
+  document.getElementById('employeeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('emp-id').value;
+
+    const payload = {
+      first_name:     document.getElementById('emp-first_name').value,
+      last_name:      document.getElementById('emp-last_name').value,
+      middle_name:    document.getElementById('emp-middle_name').value || null,
+      nationality:    document.getElementById('emp-nationality').value,
+      job_title:      document.getElementById('emp-job_title').value || null,
+      image_filename: document.getElementById('emp-image_filename').value || null,
+      email:          document.getElementById('emp-email').value || null,
+      phone:          document.getElementById('emp-phone').value || null,
+      bio:            document.getElementById('emp-bio').value || null,
+    };
+
+    const url = id ? `/api/employees/${id}` : '/api/employees/';
+    const method = id ? 'PATCH' : 'POST';
+
+    const res = await apiFetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showToast(id ? 'Employee updated' : 'Employee created');
+      closeEmployeeModal();
+      loadEmployees();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast('Error: ' + (err.detail || 'Could not save employee'));
+    }
+  });
+
+  // ── Init ───────────────────────────────────────────────────
+  loadProperties();
+  loadEmployees();
+</script>
+
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – SkyKeys Properties</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}" />
+  <style>
+    .admin-shell { display: flex; min-height: 100vh; }
+
+    .admin-sidebar {
+      width: 220px;
+      background: var(--black);
+      color: var(--white);
+      padding: 28px 20px;
+      flex-shrink: 0;
+    }
+
+    .admin-logo { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom: 2rem; }
+    .admin-logo span { display:block; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-top:4px; }
+
+    .admin-nav { display: flex; flex-direction: column; gap: 4px; }
+    .admin-nav button {
+      text-align: left;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.8rem;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .admin-nav button:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .admin-nav button.active { color: #fff; background: rgba(255,255,255,0.1); }
+
+    .admin-main { flex: 1; padding: 36px 44px; background: var(--cream); }
+
+    .admin-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; }
+    .admin-user { font-size: 0.8rem; color: var(--muted); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .admin-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--border); }
+    .admin-table th {
+      text-align: left;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--cream-dk);
+    }
+    .admin-table td { padding: 12px 14px; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .admin-table tr:last-child td { border-bottom: none; }
+
+    .row-actions { display: flex; gap: 8px; }
+    .row-actions button {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .row-actions .edit-btn:hover { border-color: var(--black); }
+    .row-actions .delete-btn { color: #c0392b; border-color: #e0c3c0; }
+    .row-actions .delete-btn:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+
+    .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 3000;
+      background: rgba(0,0,0,0.5);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--white);
+      max-width: 560px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 32px;
+      border: 1px solid var(--border);
+    }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-grid .full { grid-column: 1 / -1; }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 4000;
+      background: var(--black); color: #fff;
+      padding: 12px 20px; font-size: 0.8rem;
+      display: none;
+    }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">SkyKeys<span>Admin Portal</span></div>
+    <nav class="admin-nav">
+      <button class="nav-btn active" data-panel="properties-panel">Properties</button>
+      <button class="nav-btn" data-panel="employees-panel">Employees</button>
+    </nav>
+    <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+      <a href="/" style="font-size:0.75rem; color:rgba(255,255,255,0.5);">&larr; View Website</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <div class="admin-topbar">
+      <h1 style="font-size:1.5rem;">Dashboard</h1>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span class="admin-user">Signed in as <strong>{{ current_admin.username }}</strong></span>
+        <button id="logoutBtn" class="btn-outline" style="padding:0.5rem 1.2rem;">Log Out</button>
+      </div>
+    </div>
+
+    <!-- ── Properties panel ──────────────────────────────────── -->
+    <section class="panel active" id="properties-panel">
+      <div class="panel-header">
+        <h2 style="font-size:1.1rem;">Properties</h2>
+        <button class="btn-black" onclick="openPropertyModal()">+ Add Property</button>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Title</th><th>Emirate</th><th>Type</th><th>Price</th><th>Active</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="propertiesTableBody">
+          <tr><td colspan="7" style="text-align:center; color:var(--muted);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── Employees panel ───────────────────────────────────── -->
+    <section class="panel" id="employees-panel">
+      <div class="panel-header">
+        <h2 style="font-size:1.1rem;">Employees</h2>
+        <button class="btn-black" onclick="openEmployeeModal()">+ Add Employee</button>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Job Title</th><th>Nationality</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="employeesTableBody">
+          <tr><td colspan="5" style="text-align:center; color:var(--muted);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── Property Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="propertyModalOverlay">
+  <div class="modal-box">
+    <h3 id="propertyModalTitle" style="margin-bottom:1.2rem;">Add Property</h3>
+    <form id="propertyForm" class="modal-grid">
+      <input type="hidden" id="prop-id" />
+
+      <div class="form-group full">
+        <label class="form-label">Title</label>
+        <input class="form-control" id="prop-title" placeholder="e.g. Exclusive | Golf Course View" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Emirate *</label>
+        <input class="form-control" id="prop-emirate" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Listing Type *</label>
+        <select class="form-control" id="prop-listing_type" required>
+          <option value="sale">For Sale</option>
+          <option value="rent">For Rent</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Master Community *</label>
+        <input class="form-control" id="prop-master_community" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sub Community</label>
+        <input class="form-control" id="prop-sub_community" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Bedrooms *</label>
+        <input class="form-control" type="number" id="prop-bedrooms" min="0" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bathrooms *</label>
+        <input class="form-control" type="number" id="prop-bathrooms" min="0" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Square Feet *</label>
+        <input class="form-control" type="number" step="0.01" id="prop-square_feet" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price (AED) *</label>
+        <input class="form-control" type="number" step="0.01" id="prop-price" required />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Image URL</label>
+        <input class="form-control" id="prop-image_filename" placeholder="https://res.cloudinary.com/..." />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="prop-description" style="min-height:80px;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Featured?</label>
+        <select class="form-control" id="prop-is_featured">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Active?</label>
+        <select class="form-control" id="prop-is_active">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+
+      <div class="full" style="display:flex; gap:10px; margin-top:8px;">
+        <button type="submit" class="btn-black">Save Property</button>
+        <button type="button" class="btn-outline" onclick="closePropertyModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Employee Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="employeeModalOverlay">
+  <div class="modal-box">
+    <h3 id="employeeModalTitle" style="margin-bottom:1.2rem;">Add Employee</h3>
+    <form id="employeeForm" class="modal-grid">
+      <input type="hidden" id="emp-id" />
+
+      <div class="form-group">
+        <label class="form-label">First Name *</label>
+        <input class="form-control" id="emp-first_name" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name *</label>
+        <input class="form-control" id="emp-last_name" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Middle Name</label>
+        <input class="form-control" id="emp-middle_name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nationality *</label>
+        <input class="form-control" id="emp-nationality" required />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Job Title</label>
+        <input class="form-control" id="emp-job_title" />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Image URL</label>
+        <input class="form-control" id="emp-image_filename" placeholder="https://res.cloudinary.com/..." />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" id="emp-email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input class="form-control" id="emp-phone" />
+      </div>
+
+      <div class="form-group full">
+        <label class="form-label">Bio</label>
+        <textarea class="form-control" id="emp-bio" style="min-height:80px;"></textarea>
+      </div>
+
+      <div class="full" style="display:flex; gap:10px; margin-top:8px;">
+        <button type="submit" class="btn-black">Save Employee</button>
+        <button type="button" class="btn-outline" onclick="closeEmployeeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Navigation between panels ─────────────────────────────
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.panel).classList.add('active');
+    });
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Logout ─────────────────────────────────────────────────
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    window.location.href = '/admin/login';
+  });
+
+  // ── Generic fetch helper with 401 handling ────────────────
+  async function apiFetch(url, options = {}) {
+    const res = await fetch(url, { credentials: 'same-origin', ...options });
+    if (res.status === 401) {
+      window.location.href = '/admin/login';
+      throw new Error('Unauthorized');
+    }
+    return res;
+  }
+
+  // ============================================================
+  // PROPERTIES
+  // ============================================================
+  let properties = [];
+
+  async function loadProperties() {
+    const res = await apiFetch('/api/properties/?is_featured=');
+    // is_featured filter empty -> ignored server side, fetch ALL incl inactive separately
+    const all = await apiFetch('/api/properties/');
+    properties = await all.json();
+    renderProperties();
+  }
+
+  function renderProperties() {
+    const tbody = document.getElementById('propertiesTableBody');
+    if (!properties.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted);">No properties yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = properties.map(p => `
+      <tr>
+        <td>${p.id}</td>
+        <td>${p.title || p.master_community}</td>
+        <td>${p.emirate}</td>
+        <td>${p.listing_type === 'sale' ? 'For Sale' : 'For Rent'}</td>
+        <td>AED ${Number(p.price).toLocaleString()}</td>
+        <td>${p.is_active ? 'Yes' : 'No'}</td>
+        <td>
+          <div class="row-actions">
+            <button class="edit-btn" onclick="editProperty(${p.id})">Edit</button>
+            <button class="delete-btn" onclick="deleteProperty(${p.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openPropertyModal() {
+    document.getElementById('propertyForm').reset();
+    document.getElementById('prop-id').value = '';
+    document.getElementById('propertyModalTitle').textContent = 'Add Property';
+    document.getElementById('propertyModalOverlay').classList.add('open');
+  }
+
+  function closePropertyModal() {
+    document.getElementById('propertyModalOverlay').classList.remove('open');
+  }
+
+  function editProperty(id) {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('prop-id').value = p.id;
+    document.getElementById('prop-title').value = p.title || '';
+    document.getElementById('prop-emirate').value = p.emirate;
+    document.getElementById('prop-listing_type').value = p.listing_type;
+    document.getElementById('prop-master_community').value = p.master_community;
+    document.getElementById('prop-sub_community').value = p.sub_community || '';
+    document.getElementById('prop-bedrooms').value = p.bedrooms;
+    document.getElementById('prop-bathrooms').value = p.bathrooms;
+    document.getElementById('prop-square_feet').value = p.square_feet;
+    document.getElementById('prop-price').value = p.price;
+    document.getElementById('prop-image_filename').value = p.image_filename || '';
+    document.getElementById('prop-description').value = p.description || '';
+    document.getElementById('prop-is_featured').value = String(p.is_featured);
+    document.getElementById('prop-is_active').value = String(p.is_active);
+    document.getElementById('propertyModalTitle').textContent = 'Edit Property';
+    document.getElementById('propertyModalOverlay').classList.add('open');
+  }
+
+  async function deleteProperty(id) {
+    if (!confirm('Delete this property? This cannot be undone.')) return;
+    const res = await apiFetch(`/api/properties/${id}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) {
+      showToast('Property deleted');
+      loadProperties();
+    } else {
+      showToast('Failed to delete property');
+    }
+  }
+
+  document.getElementById('propertyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('prop-id').value;
+
+    const payload = {
+      title:             document.getElementById('prop-title').value || null,
+      emirate:           document.getElementById('prop-emirate').value,
+      listing_type:      document.getElementById('prop-listing_type').value,
+      master_community:  document.getElementById('prop-master_community').value,
+      sub_community:     document.getElementById('prop-sub_community').value || null,
+      bedrooms:          parseInt(document.getElementById('prop-bedrooms').value),
+      bathrooms:         parseInt(document.getElementById('prop-bathrooms').value),
+      square_feet:       parseFloat(document.getElementById('prop-square_feet').value),
+      price:             parseFloat(document.getElementById('prop-price').value),
+      image_filename:    document.getElementById('prop-image_filename').value || null,
+      description:       document.getElementById('prop-description').value || null,
+      is_featured:       document.getElementById('prop-is_featured').value === 'true',
+      is_active:         document.getElementById('prop-is_active').value === 'true',
+    };
+
+    const url = id ? `/api/properties/${id}` : '/api/properties/';
+    const method = id ? 'PATCH' : 'POST';
+
+    const res = await apiFetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showToast(id ? 'Property updated' : 'Property created');
+      closePropertyModal();
+      loadProperties();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast('Error: ' + (err.detail || 'Could not save property'));
+    }
+  });
+
+  // ============================================================
+  // EMPLOYEES
+  // ============================================================
+  let employees = [];
+
+  async function loadEmployees() {
+    const res = await apiFetch('/api/employees/');
+    employees = await res.json();
+    renderEmployees();
+  }
+
+  function renderEmployees() {
+    const tbody = document.getElementById('employeesTableBody');
+    if (!employees.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">No employees yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = employees.map(e => `
+      <tr>
+        <td>${e.id}</td>
+        <td>${e.first_name} ${e.last_name}</td>
+        <td>${e.job_title || '—'}</td>
+        <td>${e.nationality}</td>
+        <td>
+          <div class="row-actions">
+            <button class="edit-btn" onclick="editEmployee(${e.id})">Edit</button>
+            <button class="delete-btn" onclick="deleteEmployee(${e.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openEmployeeModal() {
+    document.getElementById('employeeForm').reset();
+    document.getElementById('emp-id').value = '';
+    document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+    document.getElementById('employeeModalOverlay').classList.add('open');
+  }
+
+  function closeEmployeeModal() {
+    document.getElementById('employeeModalOverlay').classList.remove('open');
+  }
+
+  function editEmployee(id) {
+    const e = employees.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('emp-id').value = e.id;
+    document.getElementById('emp-first_name').value = e.first_name;
+    document.getElementById('emp-last_name').value = e.last_name;
+    document.getElementById('emp-middle_name').value = e.middle_name || '';
+    document.getElementById('emp-nationality').value = e.nationality;
+    document.getElementById('emp-job_title').value = e.job_title || '';
+    document.getElementById('emp-image_filename').value = e.image_filename || '';
+    document.getElementById('emp-email').value = e.email || '';
+    document.getElementById('emp-phone').value = e.phone || '';
+    document.getElementById('emp-bio').value = e.bio || '';
+    document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+    document.getElementById('employeeModalOverlay').classList.add('open');
+  }
+
+  async function deleteEmployee(id) {
+    if (!confirm('Delete this employee? This cannot be undone.')) return;
+    const res = await apiFetch(`/api/employees/${id}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) {
+      showToast('Employee deleted');
+      loadEmployees();
+    } else {
+      showToast('Failed to delete employee');
+    }
+  }
+
+  document.getElementById('employeeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('emp-id').value;
+
+    const payload = {
+      first_name:     document.getElementById('emp-first_name').value,
+      last_name:      document.getElementById('emp-last_name').value,
+      middle_name:    document.getElementById('emp-middle_name').value || null,
+      nationality:    document.getElementById('emp-nationality').value,
+      job_title:      document.getElementById('emp-job_title').value || null,
+      image_filename: document.getElementById('emp-image_filename').value || null,
+      email:          document.getElementById('emp-email').value || null,
+      phone:          document.getElementById('emp-phone').value || null,
+      bio:            document.getElementById('emp-bio').value || null,
+    };
+
+    const url = id ? `/api/employees/${id}` : '/api/employees/';
+    const method = id ? 'PATCH' : 'POST';
+
+    const res = await apiFetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showToast(id ? 'Employee updated' : 'Employee created');
+      closeEmployeeModal();
+      loadEmployees();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast('Error: ' + (err.detail || 'Could not save employee'));
+    }
+  });
+
+  // ── Init ───────────────────────────────────────────────────
+  loadProperties();
+  loadEmployees();
+</script>
+
+</body>
+</html> -->

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login – SkyKeys Properties</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}" />
+</head>
+<body style="display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--cream);">
+
+  <div style="width:100%; max-width:380px; padding:0 24px;">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <div style="font-family:'Playfair Display',serif; font-size:1.4rem;">SkyKeys Properties</div>
+      <span class="label" style="display:block; margin-top:6px;">Admin Portal</span>
+    </div>
+
+    <div style="border:1px solid var(--border); background:var(--white); padding:32px;">
+      <h2 style="font-size:1.3rem; margin-bottom:1.5rem;">Sign In</h2>
+
+      <div id="loginError" style="display:none; padding:0.8rem 1rem; border:1px solid #c0392b; color:#c0392b; font-size:0.8rem; margin-bottom:1rem;"></div>
+
+      <form id="loginForm" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input class="form-control" type="text" id="username" name="username" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-control" type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-black" style="width:100%; justify-content:center; margin-top:8px;">Sign In</button>
+      </form>
+    </div>
+
+    <div style="text-align:center; margin-top:1.5rem;">
+      <a href="/" style="font-size:0.78rem; color:var(--muted);">&larr; Back to website</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const errorBox = document.getElementById('loginError');
+      errorBox.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+          }),
+        });
+
+        if (res.ok) {
+          window.location.href = '/admin/dashboard';
+        } else {
+          const data = await res.json();
+          errorBox.textContent = data.detail || 'Login failed.';
+          errorBox.style.display = 'block';
+        }
+      } catch {
+        errorBox.textContent = 'Something went wrong. Please try again.';
+        errorBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login – SkyKeys Properties</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}" />
+</head>
+<body style="display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--cream);">
+
+  <div style="width:100%; max-width:380px; padding:0 24px;">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <div style="font-family:'Playfair Display',serif; font-size:1.4rem;">SkyKeys Properties</div>
+      <span class="label" style="display:block; margin-top:6px;">Admin Portal</span>
+    </div>
+
+    <div style="border:1px solid var(--border); background:var(--white); padding:32px;">
+      <h2 style="font-size:1.3rem; margin-bottom:1.5rem;">Sign In</h2>
+
+      <div id="loginError" style="display:none; padding:0.8rem 1rem; border:1px solid #c0392b; color:#c0392b; font-size:0.8rem; margin-bottom:1rem;"></div>
+
+      <form id="loginForm" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input class="form-control" type="text" id="username" name="username" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-control" type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-black" style="width:100%; justify-content:center; margin-top:8px;">Sign In</button>
+      </form>
+    </div>
+
+    <div style="text-align:center; margin-top:1.5rem;">
+      <a href="/" style="font-size:0.78rem; color:var(--muted);">&larr; Back to website</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const errorBox = document.getElementById('loginError');
+      errorBox.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+          }),
+        });
+
+        if (res.ok) {
+          window.location.href = '/admin/dashboard';
+        } else {
+          const data = await res.json();
+          errorBox.textContent = data.detail || 'Login failed.';
+          errorBox.style.display = 'block';
+        }
+      } catch {
+        errorBox.textContent = 'Something went wrong. Please try again.';
+        errorBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+
+</body>
+</html> -->
