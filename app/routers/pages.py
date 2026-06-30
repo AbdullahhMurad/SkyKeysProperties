@@ -138,6 +138,40 @@ def contact_page(request: Request, db: Session = Depends(get_db)):
     })
 
 
+
+# ---------------------------------------------------------------------------
+# Property detail  /properties/{id}
+# ---------------------------------------------------------------------------
+@router.get("/properties/{property_id}", response_class=HTMLResponse)
+def property_detail(property_id: int, request: Request, db: Session = Depends(get_db)):
+    prop = db.query(Property).filter(
+        Property.id == property_id,
+        Property.is_active == True,
+    ).first()
+
+    if not prop:
+        from fastapi.responses import HTMLResponse
+        return HTMLResponse(status_code=404, content="Property not found")
+
+    images = (
+        db.query(PropertyImage)
+        .filter(PropertyImage.property_id == property_id)
+        .order_by(PropertyImage.sort_order)
+        .all()
+    )
+
+    # Fall back to the primary image_filename if no gallery images exist
+    if not images and prop.image_filename:
+        images = [type('obj', (object,), {'image_url': prop.image_filename})()]
+
+    return templates.TemplateResponse("property_detail.html", {
+        "request":  request,
+        "prop":     prop,
+        "images":   images,
+        "year":     datetime.now().year,
+    })
+
+
 # from datetime import datetime
 # from typing import Optional
 

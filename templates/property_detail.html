@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+{% block title %}{{ prop.title or prop.master_community }} – SkyKeys Properties{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Gallery grid ─────────────────────────────────────────── */
+  .gallery-hero {
+    width: 100%;
+    height: 60vh;
+    min-height: 400px;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+    background: var(--cream-dk);
+  }
+
+  .gallery-thumbs {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    background: var(--black);
+    padding: 3px 0;
+    scrollbar-width: none;
+  }
+
+  .gallery-thumbs::-webkit-scrollbar { display: none; }
+
+  .thumb {
+    flex-shrink: 0;
+    width: 100px;
+    height: 68px;
+    object-fit: cover;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+    display: block;
+    background: #222;
+  }
+
+  .thumb.active, .thumb:hover { opacity: 1; }
+
+  /* ── Lightbox ─────────────────────────────────────────────── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0,0,0,0.96);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox.open { display: flex; }
+
+  .lightbox-img {
+    max-width: 780px;
+    max-height: 78vh;
+    width: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 20px; right: 28px;
+    color: #fff;
+    font-size: 1.6rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .lightbox-close:hover { opacity: 1; }
+
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 1rem;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    line-height: 1;
+  }
+
+  .lightbox-nav:hover { opacity: 1; }
+  .lightbox-prev { left: 16px; }
+  .lightbox-next { right: 16px; }
+
+  .lightbox-counter {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 1.2rem;
+  }
+
+  .lightbox-thumbs {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+    max-width: 780px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .lightbox-thumbs::-webkit-scrollbar { display: none; }
+
+  .lightbox-thumb {
+    flex-shrink: 0;
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+
+  .lightbox-thumb.active, .lightbox-thumb:hover { opacity: 1; }
+
+  /* ── Property detail layout ───────────────────────────────── */
+  .detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .detail-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+    color: var(--black);
+    margin-bottom: 0.3rem;
+  }
+
+  .detail-price-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    display: block;
+  }
+
+  .detail-specs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .detail-spec {
+    background: var(--cream);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-spec-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+  }
+
+  .detail-spec-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .detail-description {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Sticky sidebar ───────────────────────────────────────── */
+  .detail-sidebar {
+    position: sticky;
+    top: 90px;
+    border: 1px solid var(--border);
+    padding: 28px;
+    background: var(--white);
+  }
+
+  .sidebar-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .sidebar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-field label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .sidebar-field input,
+  .sidebar-field textarea {
+    border: 1px solid var(--border);
+    background: var(--cream);
+    padding: 0.7rem 0.8rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--black);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .sidebar-field input:focus,
+  .sidebar-field textarea:focus { border-color: var(--black); }
+  .sidebar-field textarea { resize: vertical; min-height: 90px; }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a { color: var(--muted); transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--black); }
+  .breadcrumb span { opacity: 0.4; }
+
+  @media (max-width: 900px) {
+    .detail-layout { grid-template-columns: 1fr; }
+    .detail-sidebar { position: static; }
+    .lightbox-img { max-width: 95vw; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Image gallery ───────────────────────────────────────── -->
+{% if images %}
+<div style="margin-top:0; padding-top:72px;">
+
+  <!-- Hero image -->
+  <img id="heroImg"
+       class="gallery-hero"
+       src="{{ images[0].image_url }}"
+       alt="{{ prop.title or prop.master_community }}"
+       onclick="openLightbox(0)" />
+
+  <!-- Thumbnails strip -->
+  {% if images|length > 1 %}
+  <div class="gallery-thumbs" id="thumbStrip">
+    {% for img in images %}
+    <img class="thumb {% if loop.first %}active{% endif %}"
+         src="{{ img.image_url }}"
+         alt="Image {{ loop.index }}"
+         onclick="selectImage({{ loop.index0 }})"
+         id="thumb-{{ loop.index0 }}" />
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+<!-- ── Detail content ──────────────────────────────────────── -->
+<section class="section" style="padding-top: 60px;">
+  <div class="container">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/properties">Properties</a>
+      <span>›</span>
+      <a href="/properties?listing_type={{ prop.listing_type }}">
+        {{ 'For Sale' if prop.listing_type == 'sale' else 'For Rent' }}
+      </a>
+      <span>›</span>
+      <a href="/properties?emirate={{ prop.emirate }}">{{ prop.emirate }}</a>
+      <span>›</span>
+      <span style="color:var(--black);">{{ prop.master_community }}</span>
+    </div>
+
+    <div class="detail-layout">
+
+      <!-- Left: property info -->
+      <div>
+        <span class="label" style="display:block; margin-bottom:0.5rem;">
+          {{ prop.master_community }}{% if prop.sub_community %} · {{ prop.sub_community }}{% endif %} · {{ prop.emirate }}
+        </span>
+
+        <h1 style="font-size:clamp(1.4rem,3vw,2.2rem); margin-bottom:1.5rem;">
+          {{ prop.title or (prop.bedrooms|string + '-Bedroom in ' + prop.master_community) }}
+        </h1>
+
+        <div class="detail-price">
+          AED {{ "{:,.0f}".format(prop.price) }}
+        </div>
+        <span class="detail-price-label">
+          {{ 'Annual Rent' if prop.listing_type == 'rent' else 'Sale Price' }}
+        </span>
+
+        <!-- Specs grid -->
+        <div class="detail-specs">
+          <div class="detail-spec">
+            <span class="detail-spec-value">{{ prop.bedrooms }}</span>
+            <span class="detail-spec-label">Bedrooms</span>
+          </div>
+          <div class="detail-spec">
+            <span class="detail-spec-value">{{ prop.bathrooms }}</span>
+            <span class="detail-spec-label">Bathrooms</span>
+          </div>
+          <div class="detail-spec">
+            <span class="detail-spec-value">{{ "{:,.0f}".format(prop.square_feet) }}</span>
+            <span class="detail-spec-label">Sq. Ft.</span>
+          </div>
+        </div>
+
+        {% if prop.description %}
+        <p class="detail-description">{{ prop.description }}</p>
+        {% endif %}
+
+        <!-- Location details -->
+        <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
+          <span class="label" style="display:block; margin-bottom:1rem;">Location</span>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <div style="display:flex; gap:2rem;">
+              <div>
+                <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Emirate</div>
+                <div style="font-size:0.88rem;">{{ prop.emirate }}</div>
+              </div>
+              <div>
+                <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Community</div>
+                <div style="font-size:0.88rem;">{{ prop.master_community }}</div>
+              </div>
+              {% if prop.sub_community %}
+              <div>
+                <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Sub Community</div>
+                <div style="font-size:0.88rem;">{{ prop.sub_community }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: enquiry sidebar -->
+      <div class="detail-sidebar">
+        <div class="sidebar-title">Enquire About This Property</div>
+
+        <form id="enquiryForm" style="display:flex; flex-direction:column; gap:12px;">
+          <div class="sidebar-field">
+            <label for="eq-name">Full Name</label>
+            <input type="text" id="eq-name" name="name" placeholder="John Smith" />
+          </div>
+          <div class="sidebar-field">
+            <label for="eq-email">Email</label>
+            <input type="email" id="eq-email" name="email" placeholder="john@example.com" />
+          </div>
+          <div class="sidebar-field">
+            <label for="eq-phone">Phone</label>
+            <input type="tel" id="eq-phone" name="phone" placeholder="+971 50 000 0000" />
+          </div>
+          <div class="sidebar-field">
+            <label for="eq-msg">Message</label>
+            <textarea id="eq-msg" name="message">I am interested in this property — {{ prop.title or prop.master_community }}. Please get in touch.</textarea>
+          </div>
+          <button type="submit" class="btn-black" style="width:100%; justify-content:center;">Send Enquiry</button>
+          <div id="eq-success" style="display:none; font-size:0.78rem; color:var(--muted); text-align:center; padding:0.5rem;">
+            ✓ Enquiry sent. We'll be in touch shortly.
+          </div>
+        </form>
+
+        <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+          <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem;">Or call us directly</div>
+          <a href="tel:+97143000000" style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--black);">+971 4 300 0000</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Lightbox ────────────────────────────────────────────── -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+  <button class="lightbox-nav lightbox-prev" onclick="shiftImage(-1)">&#x2039;</button>
+  <button class="lightbox-nav lightbox-next" onclick="shiftImage(1)">&#x203A;</button>
+
+  <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+
+  {% if images|length > 1 %}
+  <div class="lightbox-thumbs" id="lightboxThumbs">
+    {% for img in images %}
+    <img class="lightbox-thumb {% if loop.first %}active{% endif %}"
+         src="{{ img.image_url }}"
+         alt="Image {{ loop.index }}"
+         onclick="goToImage({{ loop.index0 }})"
+         id="lb-thumb-{{ loop.index0 }}" />
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const images = [
+    {% for img in images %}
+    "{{ img.image_url }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  let current = 0;
+
+  function selectImage(index) {
+    current = index;
+    // Update hero
+    document.getElementById('heroImg').src = images[index];
+    // Update thumbs
+    document.querySelectorAll('.thumb').forEach((t, i) => {
+      t.classList.toggle('active', i === index);
+    });
+  }
+
+  function openLightbox(index) {
+    current = index;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function shiftImage(dir) {
+    current = (current + dir + images.length) % images.length;
+    updateLightbox();
+  }
+
+  function goToImage(index) {
+    current = index;
+    updateLightbox();
+  }
+
+  function updateLightbox() {
+    document.getElementById('lightboxImg').src = images[current];
+    document.getElementById('lightboxCounter').textContent =
+      (current + 1) + ' / ' + images.length;
+
+    document.querySelectorAll('.lightbox-thumb').forEach((t, i) => {
+      t.classList.toggle('active', i === current);
+    });
+
+    // Scroll active lightbox thumb into view
+    const active = document.getElementById('lb-thumb-' + current);
+    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'ArrowRight') shiftImage(1);
+    if (e.key === 'ArrowLeft')  shiftImage(-1);
+    if (e.key === 'Escape')     closeLightbox();
+  });
+
+  // Click outside image to close
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+  });
+
+  // Enquiry form
+  document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:    document.getElementById('eq-name').value,
+          email:   document.getElementById('eq-email').value,
+          phone:   document.getElementById('eq-phone').value,
+          subject: 'Property Enquiry – {{ prop.title or prop.master_community }}',
+          message: document.getElementById('eq-msg').value,
+        }),
+      });
+      if (res.ok) {
+        e.target.reset();
+        document.getElementById('eq-success').style.display = 'block';
+      }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send Enquiry';
+    }
+  });
+</script>
+{% endblock %}
