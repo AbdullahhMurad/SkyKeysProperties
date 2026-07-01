@@ -31,6 +31,49 @@
   </div>
 </div>
 
+
+
+<!-- ── Developers carousel ─────────────────────────────────── -->
+<div class="developers-section">
+  <div class="container">
+    <div class="developers-header">
+      <h3>Developers We Work With</h3>
+      <div class="dev-underline"></div>
+    </div>
+
+    {% if developers %}
+    <div class="carousel-wrapper">
+      <button class="carousel-btn" id="devPrev">&#8249;</button>
+
+      <div class="carousel-track-outer">
+        <div class="carousel-track" id="devTrack">
+          {% for dev in developers %}
+          <div class="dev-item">
+            {% if dev.logo_url %}
+              <img src="{{ dev.logo_url }}"
+                   alt="{{ dev.name }}"
+                   class="dev-logo"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <span class="dev-name" style="display:none;">{{ dev.name }}</span>
+            {% else %}
+              <span class="dev-name">{{ dev.name }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button class="carousel-btn" id="devNext">&#8250;</button>
+    </div>
+
+    <div class="carousel-dots" id="devDots"></div>
+    {% else %}
+    <p style="text-align:center; color:rgba(255,255,255,0.3); font-size:0.82rem;">No developers added yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+
 <!-- ── Featured properties ─────────────────────────────────── -->
 {% if featured_properties %}
 <section class="section">
@@ -42,7 +85,7 @@
       <a href="/properties/{{ prop.id }}" class="prop-card reveal">
         <div class="prop-card-img">
           {% if prop.image_filename %}
-            <img src="{{ url_for('static', path='images/properties/' + prop.image_filename) }}"
+            <img src="{{ prop.image_filename if '://' in prop.image_filename else '/static/images/properties/' + prop.image_filename }}"
                  alt="{{ prop.title or prop.master_community }}"
                  onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'><svg width=38 height=38 fill=none stroke=currentColor stroke-width=1.5 viewBox=\'0 0 24 24\'><path d=\'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\'/></svg></div>'" />
           {% else %}
@@ -112,4 +155,67 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const track    = document.getElementById('devTrack');
+  const dotsEl   = document.getElementById('devDots');
+  const prevBtn  = document.getElementById('devPrev');
+  const nextBtn  = document.getElementById('devNext');
+  const items    = track.querySelectorAll('.dev-item');
+  const total    = items.length;
+
+  function visibleCount() {
+    if (window.innerWidth <= 480) return 2;
+    if (window.innerWidth <= 768) return 3;
+    return 5;
+  }
+
+  let visible = visibleCount();
+  let pages   = Math.ceil(total / visible);
+  let current = 0;
+  let autoTimer;
+
+  function buildDots() {
+    visible = visibleCount();
+    pages   = Math.ceil(total / visible);
+    dotsEl.innerHTML = '';
+    for (let i = 0; i < pages; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(dot);
+    }
+    // Set item widths
+    items.forEach(item => item.style.width = (100 / visible) + '%');
+  }
+
+  function goTo(page) {
+    current = (page + pages) % pages;
+    const shift = current * visible * (100 / visible);
+    track.style.transform = `translateX(-${shift}%)`;
+    dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(() => goTo(current + 1), 3000);
+  }
+
+  function stopAuto() { clearInterval(autoTimer); }
+
+  prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
+  nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
+
+  buildDots();
+  goTo(0);
+  startAuto();
+
+  window.addEventListener('resize', () => { buildDots(); goTo(0); });
+})();
+</script>
 {% endblock %}

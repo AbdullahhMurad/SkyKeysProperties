@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.core.database import Base, engine
-from app.routers import employees, properties, property_images, pages, contact, auth, admin_pages
+from app.routers import employees, properties, property_images, pages, contact, auth, admin_pages, developers
 
 # ---------------------------------------------------------------------------
 # Ensure required directories exist before FastAPI tries to mount them
@@ -42,6 +42,7 @@ app.include_router(auth.router)                        # API  /api/auth/login  /
 app.include_router(employees.router, prefix="/api")    # API  /api/employees  (writes require admin)
 app.include_router(properties.router, prefix="/api")   # API  /api/properties (writes require admin)
 app.include_router(property_images.router, prefix="/api")  # API /api/properties/{id}/images (admin only writes)
+app.include_router(developers.router, prefix="/api")       # API /api/developers
 app.include_router(contact.router)                     # API  /api/contact
 
 
@@ -51,58 +52,3 @@ app.include_router(contact.router)                     # API  /api/contact
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "ok"}
-
-# from pathlib import Path
-
-# from fastapi import FastAPI
-# from fastapi.staticfiles import StaticFiles
-# from fastapi.templating import Jinja2Templates
-
-# from app.core.database import Base, engine
-# from app.routers import employees, properties, pages, contact, auth, admin_pages
-
-# # ---------------------------------------------------------------------------
-# # Ensure required directories exist before FastAPI tries to mount them
-# # ---------------------------------------------------------------------------
-# Path("static").mkdir(exist_ok=True)
-# Path("templates").mkdir(exist_ok=True)
-
-# # ---------------------------------------------------------------------------
-# # Create all tables on startup (mirrors the SQL schema)
-# # ---------------------------------------------------------------------------
-# Base.metadata.create_all(bind=engine)
-
-# # ---------------------------------------------------------------------------
-# # App instance
-# # ---------------------------------------------------------------------------
-# app = FastAPI(
-#     title="SkyKeysProperties",
-#     description="Luxury real estate platform for Dubai, Abu Dhabi, and Sharjah.",
-#     version="1.0.0",
-# )
-
-# # ---------------------------------------------------------------------------
-# # Static files & templates
-# # ---------------------------------------------------------------------------
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-# templates = Jinja2Templates(directory="templates")
-
-# # ---------------------------------------------------------------------------
-# # Routers
-# # ---------------------------------------------------------------------------
-# app.include_router(pages.router)                      # HTML pages  /  /properties  /about  /contactus
-# app.include_router(admin_pages.router)                 # HTML pages  /admin/login  /admin/dashboard
-# app.include_router(auth.router)                        # API  /api/auth/login  /api/auth/logout
-# app.include_router(employees.router, prefix="/api")    # API  /api/employees  (writes require admin)
-# app.include_router(properties.router, prefix="/api")   # API  /api/properties (writes require admin)
-# app.include_router(contact.router)                     # API  /api/contact
-
-
-# # ---------------------------------------------------------------------------
-# # Health check
-# # ---------------------------------------------------------------------------
-# @app.get("/health", tags=["Health"])
-# def health():
-#     return {"status": "ok"}
-
-# # # SKP BACKEND FIRST
