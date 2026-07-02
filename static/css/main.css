@@ -825,8 +825,8 @@ textarea.form-control { resize: vertical; min-height: 130px; }
 }
 
 .dev-logo {
-  max-height: 60px;
-  max-width: 175px;
+  max-height: 75px;
+  max-width: 219px;
   width: auto;
   object-fit: contain;
   filter: brightness(0) invert(1);

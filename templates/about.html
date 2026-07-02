@@ -75,7 +75,7 @@
       <div class="founder-card reveal">
         {% if emp.image_filename %}
           <img class="founder-img"
-               style="width:100%; height:525px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;"
+               style="width:100%; height:500px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;"
                src="{{ emp.image_filename if '://' in emp.image_filename else '/static/images/employees/' + emp.image_filename }}"
                alt="{{ emp.first_name }} {{ emp.last_name }}"
                onerror="this.style.background='var(--cream-dk)';" />
