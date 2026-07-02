@@ -6,7 +6,7 @@
 <!-- ── Hero: full-screen image/video with italic headline ──── -->
 <section class="hero">
   <img class="hero-img"
-    src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=80"
+    src="{{ settings.hero_image_url }}"
     alt="Luxury villa in Dubai" />
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -30,49 +30,6 @@
     </div>
   </div>
 </div>
-
-
-
-<!-- ── Developers carousel ─────────────────────────────────── -->
-<div class="developers-section">
-  <div class="container">
-    <div class="developers-header">
-      <h3>Developers We Work With</h3>
-      <div class="dev-underline"></div>
-    </div>
-
-    {% if developers %}
-    <div class="carousel-wrapper">
-      <button class="carousel-btn" id="devPrev">&#8249;</button>
-
-      <div class="carousel-track-outer">
-        <div class="carousel-track" id="devTrack">
-          {% for dev in developers %}
-          <div class="dev-item">
-            {% if dev.logo_url %}
-              <img src="{{ dev.logo_url }}"
-                   alt="{{ dev.name }}"
-                   class="dev-logo"
-                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-              <span class="dev-name" style="display:none;">{{ dev.name }}</span>
-            {% else %}
-              <span class="dev-name">{{ dev.name }}</span>
-            {% endif %}
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <button class="carousel-btn" id="devNext">&#8250;</button>
-    </div>
-
-    <div class="carousel-dots" id="devDots"></div>
-    {% else %}
-    <p style="text-align:center; color:rgba(255,255,255,0.3); font-size:0.82rem;">No developers added yet.</p>
-    {% endif %}
-  </div>
-</div>
-
 
 <!-- ── Featured properties ─────────────────────────────────── -->
 {% if featured_properties %}
@@ -138,6 +95,46 @@
   <div class="stat-col">
     <span class="stat-number">{{ stats.emirates }}</span>
     <span class="stat-label">Emirates Covered</span>
+  </div>
+</div>
+
+<!-- ── Developers carousel ─────────────────────────────────── -->
+<div class="developers-section">
+  <div class="container">
+    <div class="developers-header">
+      <h3>Developers We Work With</h3>
+      <div class="dev-underline"></div>
+    </div>
+
+    {% if developers %}
+    <div class="carousel-wrapper">
+      <button class="carousel-btn" id="devPrev">&#8249;</button>
+
+      <div class="carousel-track-outer">
+        <div class="carousel-track" id="devTrack">
+          {% for dev in developers %}
+          <div class="dev-item">
+            {% if dev.logo_url %}
+              <img src="{{ dev.logo_url }}"
+                   alt="{{ dev.name }}"
+                   class="dev-logo"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <span class="dev-name" style="display:none;">{{ dev.name }}</span>
+            {% else %}
+              <span class="dev-name">{{ dev.name }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button class="carousel-btn" id="devNext">&#8250;</button>
+    </div>
+
+    <div class="carousel-dots" id="devDots"></div>
+    {% else %}
+    <p style="text-align:center; color:rgba(255,255,255,0.3); font-size:0.82rem;">No developers added yet.</p>
+    {% endif %}
   </div>
 </div>
 

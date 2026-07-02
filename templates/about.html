@@ -5,7 +5,7 @@
 
 <!-- ── Hero image with caption ─────────────────────────────── -->
 <div style="margin-top:0; padding-top:72px; position:relative; overflow:hidden;">
-  <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1800&q=80"
+  <img src="{{ settings.about_hero_image_url }}"
        alt="SkyKeys Team"
        style="width:100%; height:60vh; object-fit:cover; display:block;" />
   <div style="position:absolute; bottom:32px; left:40px;">
@@ -40,7 +40,7 @@
       </div>
 
       <div class="about-img-wrap">
-        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80"
+        <img src="{{ settings.about_story_image_url }}"
              alt="Dubai skyline" />
       </div>
     </div>
@@ -75,7 +75,7 @@
       <div class="founder-card reveal">
         {% if emp.image_filename %}
           <img class="founder-img"
-               style="width:100%; height:500px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;"
+               style="width:100%; height:525px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;"
                src="{{ emp.image_filename if '://' in emp.image_filename else '/static/images/employees/' + emp.image_filename }}"
                alt="{{ emp.first_name }} {{ emp.last_name }}"
                onerror="this.style.background='var(--cream-dk)';" />

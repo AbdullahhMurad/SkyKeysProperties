@@ -134,3 +134,19 @@ class DeveloperRead(BaseModel):
     sort_order: int
 
     model_config = {"from_attributes": True}
+
+
+# ===========================================================================
+# SiteSetting schemas
+# ===========================================================================
+
+class SiteSettingRead(BaseModel):
+    key:   str
+    value: Optional[str]
+    label: Optional[str]
+
+    model_config = {"from_attributes": True}
+
+
+class SiteSettingUpdate(BaseModel):
+    value: Optional[str] = None

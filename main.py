@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.core.database import Base, engine
-from app.routers import employees, properties, property_images, pages, contact, auth, admin_pages, developers
+from app.routers import employees, properties, property_images, pages, contact, auth, admin_pages, developers, settings
 
 # ---------------------------------------------------------------------------
 # Ensure required directories exist before FastAPI tries to mount them
@@ -43,6 +43,7 @@ app.include_router(employees.router, prefix="/api")    # API  /api/employees  (w
 app.include_router(properties.router, prefix="/api")   # API  /api/properties (writes require admin)
 app.include_router(property_images.router, prefix="/api")  # API /api/properties/{id}/images (admin only writes)
 app.include_router(developers.router, prefix="/api")       # API /api/developers
+app.include_router(settings.router, prefix="/api")         # API /api/settings
 app.include_router(contact.router)                     # API  /api/contact
 
 

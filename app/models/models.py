@@ -85,3 +85,12 @@ class Developer(Base):
     is_active  = Column(Boolean, nullable=False, default=True)
     sort_order = Column(SmallInteger, nullable=False, default=0)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
+
+
+class SiteSetting(Base):
+    __tablename__ = "site_settings"
+
+    key        = Column(String(100), primary_key=True)
+    value      = Column(Text, nullable=True)
+    label      = Column(String(150), nullable=True)
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

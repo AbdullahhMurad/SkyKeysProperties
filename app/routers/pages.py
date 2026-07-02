@@ -8,13 +8,30 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.models import Employee, Property, PropertyImage, Developer
+from app.models.models import Employee, Property, PropertyImage, Developer, SiteSetting
 
 router = APIRouter(tags=["Pages"])
 templates = Jinja2Templates(directory="templates")
 
 # Generated once when the app starts – changes on every deploy
 CACHE_VERSION = str(int(time.time()))
+
+# Default fallback values if DB settings are missing
+SETTING_DEFAULTS = {
+    "hero_image_url":        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=80",
+    "about_hero_image_url":  "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1800&q=80",
+    "about_story_image_url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80",
+}
+
+
+def get_settings(db: Session) -> dict:
+    """Load all site_settings rows into a plain dict, falling back to defaults."""
+    rows = db.query(SiteSetting).all()
+    result = dict(SETTING_DEFAULTS)
+    for row in rows:
+        if row.value:
+            result[row.key] = row.value
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -46,6 +63,7 @@ def home(request: Request, db: Session = Depends(get_db)):
         "request": request,
         "featured_properties": featured,
         "developers": devs,
+        "settings": get_settings(db),
         "stats": {
             "total":    total,
             "for_sale": for_sale,
@@ -126,6 +144,7 @@ def about_page(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("about.html", {
         "request":   request,
         "employees": employees,
+        "settings":  get_settings(db),
         "year":      datetime.now().year,
         "cache_version": CACHE_VERSION,
     })

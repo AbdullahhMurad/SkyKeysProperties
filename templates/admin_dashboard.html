@@ -115,6 +115,7 @@
       <button class="nav-btn active" data-panel="properties-panel">Properties</button>
       <button class="nav-btn" data-panel="employees-panel">Employees</button>
       <button class="nav-btn" data-panel="developers-panel">Developers</button>
+      <button class="nav-btn" data-panel="siteimages-panel">Site Images</button>
     </nav>
     <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
       <a href="/" style="font-size:0.75rem; color:rgba(255,255,255,0.5);">&larr; View Website</a>
@@ -186,6 +187,19 @@
           <tr><td colspan="5" style="text-align:center; color:var(--muted);">Loading…</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <!-- ── Site Images panel ─────────────────────────────────── -->
+    <section class="panel" id="siteimages-panel">
+      <div class="panel-header">
+        <h2 style="font-size:1.1rem;">Site Images</h2>
+      </div>
+      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:1.5rem;">
+        Upload images to Cloudinary, then paste the URL below to update each site image.
+      </p>
+      <div id="siteImagesContainer" style="display:flex; flex-direction:column; gap:24px;">
+        <div style="text-align:center; color:var(--muted); font-size:0.8rem;">Loading…</div>
+      </div>
     </section>
 
   </main>
@@ -863,6 +877,76 @@
       showToast('Error: ' + (err.detail || 'Could not save developer'));
     }
   });
+
+  // ============================================================
+  // SITE IMAGES
+  // ============================================================
+  let siteSettings = [];
+
+  async function loadSiteImages() {
+    const res = await apiFetch('/api/settings/');
+    siteSettings = res.ok ? await res.json() : [];
+    renderSiteImages();
+  }
+
+  function renderSiteImages() {
+    const container = document.getElementById('siteImagesContainer');
+    if (!siteSettings.length) {
+      container.innerHTML = '<div style="color:var(--muted); font-size:0.8rem;">No settings found. Run the SQL seed script on your database.</div>';
+      return;
+    }
+
+    container.innerHTML = siteSettings.map(s => `
+      <div style="border:1px solid var(--border); padding:20px; background:var(--white);">
+        <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">
+          ${s.label || s.key}
+        </div>
+
+        ${s.value ? `
+          <img src="${s.value}" alt="${s.label}"
+               style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:var(--cream-dk);"
+               onerror="this.style.display='none'" />
+        ` : `
+          <div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">
+            No image set
+          </div>
+        `}
+
+        <div style="display:flex; gap:8px;">
+          <input id="setting-input-${s.key}"
+                 class="form-control"
+                 type="text"
+                 value="${s.value || ''}"
+                 placeholder="https://res.cloudinary.com/..."
+                 style="flex:1;" />
+          <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;"
+                  onclick="saveSiteImage('${s.key}')">
+            Save
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function saveSiteImage(key) {
+    const input = document.getElementById(`setting-input-${key}`);
+    const value = input.value.trim();
+
+    const res = await apiFetch(`/api/settings/${key}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: value || null }),
+    });
+
+    if (res.ok) {
+      showToast('Image updated');
+      loadSiteImages();
+    } else {
+      showToast('Failed to update image');
+    }
+  }
+
+  loadSiteImages();
 </script>
 
 </body>
