@@ -26,13 +26,13 @@
 
         <div class="contact-meta-item">
           <div class="label">Phone</div>
-          <div class="value"><a href="tel:+97143000000" style="color:inherit;">+971 56 185 1841</a></div>
+          <div class="value"><a href="tel:+971561851841" style="color:inherit;">+971 56 185 1841</a></div>
           <div class="sub">Sun – Thu, 9am – 6pm</div>
         </div>
 
         <div class="contact-meta-item">
           <div class="label">Email</div>
-          <div class="value"><a href="mailto:info@skykeys.ae" style="color:inherit;">info@skp.ae</a></div>
+          <div class="value"><a href="mailto:info@skp.ae" style="color:inherit;">info@skp.ae</a></div>
           <div class="sub">We reply within 5 minutes</div>
         </div>
 
@@ -40,19 +40,22 @@
         <div>
           <div class="label" style="margin-bottom:1rem;">Our Advisors</div>
           {% for emp in employees %}
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
-            <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:var(--cream-dk); flex-shrink:0; border:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+            <div style="width:64px; height:64px; border-radius:50%; overflow:hidden; background:var(--cream-dk); flex-shrink:0; border:1px solid var(--border);">
               {% if emp.image_filename %}
-                <img src="{{ url_for('static', path='images/employees/' + emp.image_filename) }}"
+                <img src="{{ emp.image_filename if '://' in emp.image_filename else '/static/images/employees/' + emp.image_filename }}"
                      alt="{{ emp.first_name }}"
                      style="width:100%; height:100%; object-fit:cover; object-position:top;"
                      onerror="this.style.display='none'" />
               {% endif %}
             </div>
             <div>
-              <div style="font-size:0.82rem; font-weight:500;">{{ emp.first_name }} {{ emp.last_name }}</div>
+              <div style="font-size:0.88rem; font-weight:500;">{{ emp.first_name }} {{ emp.last_name }}</div>
               {% if emp.job_title %}
-                <div style="font-size:0.72rem; color:var(--muted); font-style:italic;">{{ emp.job_title }}</div>
+                <div style="font-size:0.74rem; color:var(--muted); font-style:italic;">{{ emp.job_title }}</div>
+              {% endif %}
+              {% if emp.phone %}
+                <a href="tel:{{ emp.phone }}" style="font-size:0.74rem; color:var(--muted); display:block; margin-top:2px;">{{ emp.phone }}</a>
               {% endif %}
             </div>
           </div>
@@ -66,7 +69,7 @@
       <div class="reveal">
         <span class="label" style="display:block; margin-bottom:1.5rem;">Send a Message</span>
 
-        <div id="formSuccess" class="form-success">Your message has been sent. We'll be in touch within 5 minutes</div>
+        <div id="formSuccess" class="form-success">Your message has been sent. We'll be in touch within 5 minutes.</div>
         <div id="formError" class="form-error"></div>
 
         <form id="contactForm" class="contact-form" novalidate>
