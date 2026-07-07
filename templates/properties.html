@@ -19,6 +19,7 @@
       <button class="filter-tab {{ 'active' if not active_filter }}" data-filter="all">All</button>
       <button class="filter-tab {{ 'active' if active_filter == 'sale' }}" data-filter="sale">For Sale</button>
       <button class="filter-tab {{ 'active' if active_filter == 'rent' }}" data-filter="rent">For Rent</button>
+      <button class="filter-tab {{ 'active' if active_filter == 'off_plan' }}" data-filter="off_plan">Off Plan</button>
     </div>
 
     {% if properties %}
@@ -29,10 +30,8 @@
 
           <div class="prop-card-img">
             {% if prop.image_filename %}
-            
-            
-            <img src="{{ prop.image_filename if '://' in prop.image_filename else '/static/images/properties/' + prop.image_filename }}"
-            alt="{{ prop.title or prop.master_community }}"
+              <img src="{{ prop.image_filename if '://' in prop.image_filename else '/static/images/properties/' + prop.image_filename }}"
+                   alt="{{ prop.title or prop.master_community }}"
                    onerror="this.parentElement.innerHTML='<div class=\'img-placeholder\'><svg width=38 height=38 fill=none stroke=currentColor stroke-width=1.5 viewBox=\'0 0 24 24\'><path d=\'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\'/></svg></div>'" />
             {% else %}
               <div class="img-placeholder">
@@ -41,8 +40,10 @@
                 </svg>
               </div>
             {% endif %}
-            <span class="prop-badge {{ 'prop-badge-rent' if prop.listing_type == 'rent' else '' }}">
-              {{ 'For Rent' if prop.listing_type == 'rent' else 'For Sale' }}
+            <span class="prop-badge {% if prop.listing_type == 'rent' %}prop-badge-rent{% elif prop.listing_type == 'off_plan' %}prop-badge-off-plan{% endif %}">
+              {% if prop.listing_type == 'rent' %}For Rent
+              {% elif prop.listing_type == 'off_plan' %}Off Plan
+              {% else %}For Sale{% endif %}
             </span>
           </div>
 

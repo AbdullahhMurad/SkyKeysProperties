@@ -174,25 +174,14 @@ h5 { font-size: 0.95rem; }
 .btn-outline:hover { background: var(--black); color: var(--white); }
 
 /* ── Hero ─────────────────────────────────────────────────── */
-
 .hero {
-  position: relative;
-  height: 60vh;         /* was 100vh */
-  min-height: 400px;    /* was 600px, scaled by 30% */
-  overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-}
-
-
-/* .hero {
   position: relative;
   height: 100vh;
   min-height: 600px;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-} */
+}
 
 .hero video, .hero-img {
   position: absolute;
@@ -281,7 +270,6 @@ h5 { font-size: 0.95rem; }
 }
 
 .prop-card {
-  width: 90%;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
@@ -294,7 +282,7 @@ h5 { font-size: 0.95rem; }
 
 .prop-card-img {
   position: relative;
-  height: 360px;
+  height: 420px;
   overflow: hidden;
   background: var(--cream-dk);
 }
@@ -320,6 +308,7 @@ h5 { font-size: 0.95rem; }
 }
 
 .prop-badge-rent { background: var(--white); color: var(--black); border: 1px solid var(--border); }
+.prop-badge-off-plan { background: var(--black); color: var(--white); border: 1px solid var(--black); letter-spacing: 0.1em; }
 
 .prop-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
 

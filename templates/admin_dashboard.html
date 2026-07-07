@@ -226,6 +226,7 @@
         <select class="form-control" id="prop-listing_type" required>
           <option value="sale">For Sale</option>
           <option value="rent">For Rent</option>
+          <option value="off_plan">Off Plan</option>
         </select>
       </div>
 
@@ -472,7 +473,7 @@
         <td>${p.id}</td>
         <td>${p.title || p.master_community}</td>
         <td>${p.emirate}</td>
-        <td>${p.listing_type === 'sale' ? 'For Sale' : 'For Rent'}</td>
+        <td>${p.listing_type === 'sale' ? 'For Sale' : p.listing_type === 'rent' ? 'For Rent' : 'Off Plan'}</td>
         <td>AED ${Number(p.price).toLocaleString()}</td>
         <td>${p.is_active ? 'Yes' : 'No'}</td>
         <td>
