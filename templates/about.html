@@ -65,7 +65,7 @@
     <span class="section-label">Meet the Team</span>
 
     <!-- Founders / primary team members -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;">
+    <div class="employees-grid">
       {% for emp in employees %}
       <div class="founder-card reveal">
         {% if emp.image_filename %}
@@ -114,7 +114,7 @@
   <div class="container">
     <span class="label" style="color:rgba(255,255,255,0.4); display:block; margin-bottom:1.05rem; font-size:0.46rem;">Join Us</span>
     <h2 style="font-size:clamp(1.1rem,2.1vw,1.8rem);">Work Alongside Us</h2>
-    <p style="margin-top:0.7rem; margin-bottom:1.4rem; font-size:0.85rem;">
+    <p style="margin-top:0.7rem; margin-bottom:1.4rem; font-size:0.6rem;">
       Are you a community expert or serial networker looking to transform your local knowledge into a rewarding real estate career?
       At SkyKeys Properties, we value individuals who understand people, places, and potential.
       Your existing network and community insights could be the foundation for exceptional success in luxury property.
