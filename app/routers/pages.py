@@ -21,6 +21,7 @@ SETTING_DEFAULTS = {
     "hero_image_url":        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=80",
     "about_hero_image_url":  "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1800&q=80",
     "about_story_image_url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80",
+    "meet_the_team":         "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=900&q=80",
 }
 
 
