@@ -18,14 +18,30 @@
 <!-- ── Intro text block ────────────────────────────────────── -->
 <div class="intro-block">
   <div class="container">
-    <h2>SkyKeys Properties is not your average real estate brokerage.</h2>
-    <p>
-      We are a dynamic and enthusiastic Real Estate brokerage, and property management firm. Our commitment is to provide top-notch, professional services that ensure the triumph and contentment of our clients. Sky Keys Properties, headquartered in Abu Dhabi, with a presence extending to Dubai, forms a nexus that covers the UAE and various international territories.
-      Our extensive experience spanning over a decade equips us with the know-how to expertly guide our clients through every facet of Real Estate. Our proficiency encompasses handling sales, purchases, rentals, and the meticulous management of diverse property categories, ranging from residential condos and estates to individual commercial units and entire structures.
-      Earning the reliance of our clients stands as a priceless asset, propelling us to uphold this trust with prospective and established clients alike. Hence, we stand resolute in our core principle: We offer tangible solutions, not mere assurances.
-    </p>
-    <div style="margin-top: 2rem;">
-      <a href="/about" class="link-arrow">Who Are We? →</a>
+    <div class="about-cols">
+      <div>
+        <h2 style="margin-bottom:1.5rem;">SkyKeys Properties is not your average real estate brokerage.</h2>
+        <p style="color:var(--muted); font-size:0.88rem; line-height:1.9; margin-bottom:1rem;">
+          We are a dynamic and enthusiastic Real Estate brokerage, and property management firm. Our commitment is to provide top-notch, professional services that ensure the triumph and contentment of our clients. Sky Keys Properties, headquartered in Abu Dhabi, with a presence extending to Dubai, forms a nexus that covers the UAE and various international territories.
+        </p>
+        <p style="color:var(--muted); font-size:0.88rem; line-height:1.9; margin-bottom:1rem;">
+          Our extensive experience spanning over a decade equips us with the know-how to expertly guide our clients through every facet of Real Estate. Our proficiency encompasses handling sales, purchases, rentals, and the meticulous management of diverse property categories.
+        </p>
+        <p style="color:var(--muted); font-size:0.88rem; line-height:1.9;">
+          Earning the reliance of our clients stands as a priceless asset. We stand resolute in our core principle: We offer tangible solutions, not mere assurances.
+        </p>
+        <div style="margin-top: 2rem;">
+          <a href="/about" class="link-arrow">Who Are We? →</a>
+        </div>
+      </div>
+
+      <div class="about-img-wrap">
+        {% if settings.intro_image_url %}
+          <img src="{{ settings.intro_image_url }}" alt="SkyKeys Properties" />
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=80" alt="Luxury property" />
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
@@ -184,7 +200,6 @@
       dot.addEventListener('click', () => goTo(i));
       dotsEl.appendChild(dot);
     }
-    // Set item widths
     items.forEach(item => item.style.width = (100 / visible) + '%');
   }
 
