@@ -25,6 +25,7 @@
   --border:   #D4CFC7;
   --muted:    #7A7571;
   --white:    #FFFFFF;
+  --blue:     #1B3A6B;
   --radius:   0px;
   --transition: 0.2s ease;
 }
@@ -48,7 +49,7 @@ h1, h2, h3, h4, h5 {
   font-family: 'Playfair Display', serif;
   font-weight: 400;
   line-height: 1.15;
-  color: var(--black);
+  color: var(--blue);
 }
 
 h1 { font-size: clamp(2.2rem, 4.5vw, 4rem); }
@@ -95,7 +96,7 @@ h5 { font-size: 0.95rem; }
   font-size: 1.32rem;
   font-weight: 500;
   letter-spacing: 0.03em;
-  color: var(--black);
+  color: var(--blue);
   display: flex;
   align-items: baseline;
   gap: 0;
@@ -238,7 +239,7 @@ h5 { font-size: 0.95rem; }
   font-size: clamp(1.5rem, 2.5vw, 2.2rem);
   font-weight: 400;
   line-height: 1.45;
-  color: var(--black);
+  color: var(--blue);
 }
 
 .intro-block p {
@@ -318,7 +319,7 @@ h5 { font-size: 0.95rem; }
   font-style: italic;
   font-size: 0.92rem;
   font-weight: 400;
-  color: var(--black);
+  color: var(--blue);
   margin-bottom: 12px;
   line-height: 1.4;
 }
@@ -386,7 +387,7 @@ h5 { font-size: 0.95rem; }
   font-family: 'Playfair Display', serif;
   font-size: 2.4rem;
   font-weight: 400;
-  color: var(--black);
+  color: var(--blue);
   display: block;
 }
 
@@ -639,7 +640,6 @@ textarea.form-control { resize: vertical; min-height: 130px; }
 .link-arrow:hover { opacity: 0.5; }
 
 /* ── Footer ───────────────────────────────────────────────── */
-/* Sizes reduced ~30% from original (padding, gaps, and font-sizes scaled to ~0.7x) */
 .footer {
   background: var(--black);
   color: var(--white);
@@ -802,7 +802,7 @@ textarea.form-control { resize: vertical; min-height: 130px; }
 
 .dev-item {
   flex-shrink: 0;
-  width: 20%;          /* 5 visible at a time */
+  width: 20%;
   display: flex;
   align-items: center;
   justify-content: center;
