@@ -75,15 +75,12 @@
     <span class="section-label">Meet the Team</span>
 
     <!-- Founders / primary team members -->
-<div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px; align-items:start; margin-bottom:80px;"></div>
-    <!-- <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px; align-items:start; margin-bottom:80px;"></div> -->
-    <!-- <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;"> -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;">
       {% for emp in employees %}
       <div class="founder-card reveal">
         {% if emp.image_filename %}
           <img class="founder-img"
-              style="width:100%; height:220px; object-fit:cover; object-position:top; display:block; margin-bottom:12px;"
-               /* style="width:100%; height:425px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;" */
+               style="width:100%; height:425px; object-fit:cover; object-position:top; display:block; margin-bottom:20px;"
                src="{{ emp.image_filename if '://' in emp.image_filename else '/static/images/employees/' + emp.image_filename }}"
                alt="{{ emp.first_name }} {{ emp.last_name }}"
                onerror="this.style.background='var(--cream-dk)';" />
