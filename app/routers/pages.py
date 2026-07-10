@@ -41,12 +41,19 @@ def get_settings(db: Session) -> dict:
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
     featured = (
-        db.query(Property)
-        .filter(Property.is_featured == True, Property.is_active == True)
-        .order_by(Property.created_at.desc())
-        .limit(6)
-        .all()
-    )
+    db.query(Property)
+    .filter(Property.is_featured == True, Property.is_active == True)
+    .order_by(Property.sort_order)
+    .limit(6)                          # ← already there, keeps homepage clean
+    .all()
+)
+    # featured = (
+    #     db.query(Property)
+    #     .filter(Property.is_featured == True, Property.is_active == True)
+    #     .order_by(Property.created_at.desc())
+    #     .limit(6)
+    #     .all()
+    # )
 
     total      = db.query(Property).filter(Property.is_active == True).count()
     for_sale   = db.query(Property).filter(Property.is_active == True, Property.listing_type == "sale").count()

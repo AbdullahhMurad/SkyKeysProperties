@@ -33,7 +33,7 @@
     .admin-nav button:hover { color: #fff; background: rgba(255,255,255,0.06); }
     .admin-nav button.active { color: #fff; background: rgba(255,255,255,0.1); }
 
-    .admin-main { flex: 1; padding: 36px 44px; background: var(--cream); }
+    .admin-main { flex: 1; padding: 36px 44px; background: var(--cream); overflow-x: auto; }
 
     .admin-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; }
     .admin-user { font-size: 0.8rem; color: var(--muted); }
@@ -53,24 +53,54 @@
       border-bottom: 1px solid var(--border);
       background: var(--cream-dk);
     }
-    .admin-table td { padding: 12px 14px; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .admin-table td { padding: 10px 14px; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
     .admin-table tr:last-child td { border-bottom: none; }
 
-    .row-actions { display: flex; gap: 8px; }
-    .row-actions button {
-      font-size: 0.65rem;
+    /* Section divider row inside the table */
+    .section-divider td {
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.6rem;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      border: none;
+    }
+
+    .row-actions { display: flex; gap: 6px; align-items: center; }
+    .row-actions button {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       background: none;
       border: 1px solid var(--border);
-      padding: 5px 10px;
+      padding: 4px 9px;
       cursor: pointer;
       transition: all 0.2s;
+      line-height: 1.4;
     }
-    .row-actions .edit-btn:hover { border-color: var(--black); }
-    .row-actions .delete-btn { color: #c0392b; border-color: #e0c3c0; }
-    .row-actions .delete-btn:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+    .row-actions .edit-btn:hover  { border-color: var(--black); }
+    .row-actions .delete-btn      { color: #c0392b; border-color: #e0c3c0; }
+    .row-actions .delete-btn:hover{ background: #c0392b; color: #fff; border-color: #c0392b; }
+    .row-actions .arrow-btn       { padding: 4px 7px; font-size: 0.75rem; color: var(--muted); }
+    .row-actions .arrow-btn:hover { border-color: var(--black); color: var(--black); }
+    .row-actions .arrow-btn:disabled { opacity: 0.2; cursor: default; }
+
+    /* featured badge */
+    .badge-featured {
+      display: inline-block;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
 
     .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; }
 
@@ -136,14 +166,23 @@
     <!-- ── Properties panel ──────────────────────────────────── -->
     <section class="panel active" id="properties-panel">
       <div class="panel-header">
-        <h2 style="font-size:1.1rem;">Properties</h2>
+        <div>
+          <h2 style="font-size:1.1rem; margin-bottom:0.2rem;">Properties</h2>
+          <p style="font-size:0.75rem; color:var(--muted);">Use ↑ ↓ arrows to reorder within each section. Toggle Featured with the Star button.</p>
+        </div>
         <button class="btn-black" onclick="openPropertyModal()">+ Add Property</button>
       </div>
 
-      <table class="admin-table">
+      <table class="admin-table" id="propertiesTable">
         <thead>
           <tr>
-            <th>ID</th><th>Title</th><th>Emirate</th><th>Type</th><th>Price</th><th>Active</th><th></th>
+            <th style="width:36px;">Order</th>
+            <th>Title</th>
+            <th>Emirate</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Active</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="propertiesTableBody">
@@ -176,7 +215,6 @@
         <h2 style="font-size:1.1rem;">Employees</h2>
         <button class="btn-black" onclick="openEmployeeModal()">+ Add Employee</button>
       </div>
-
       <table class="admin-table">
         <thead>
           <tr>
@@ -295,21 +333,14 @@
   <div class="modal-box">
     <h3 style="margin-bottom:0.3rem;">Manage Property Images</h3>
     <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1.4rem;">
-      Add image URLs (e.g. from Cloudinary). The first image shown becomes the main listing photo.
+      Add image URLs (e.g. from Cloudinary). The first image becomes the main listing photo.
     </p>
-
-    <div id="imagesList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.4rem;">
-      <!-- populated by JS -->
-    </div>
-
+    <div id="imagesList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.4rem;"></div>
     <div style="display:flex; gap:8px; margin-bottom:1.2rem;">
       <input class="form-control" id="newImageUrl" placeholder="https://res.cloudinary.com/..." style="flex:1;" />
       <button type="button" class="btn-black" onclick="addImage()" style="white-space:nowrap;">+ Add</button>
     </div>
-
-    <div style="display:flex; gap:10px;">
-      <button type="button" class="btn-outline" onclick="closeImagesModal()">Close</button>
-    </div>
+    <button type="button" class="btn-outline" onclick="closeImagesModal()">Close</button>
   </div>
 </div>
 
@@ -319,23 +350,19 @@
     <h3 id="developerModalTitle" style="margin-bottom:1.2rem;">Add Developer</h3>
     <form id="developerForm" class="modal-grid">
       <input type="hidden" id="dev-id" />
-
       <div class="form-group full">
         <label class="form-label">Developer Name *</label>
         <input class="form-control" id="dev-name" required placeholder="e.g. Emaar" />
       </div>
-
       <div class="form-group full">
         <label class="form-label">Logo URL (from Cloudinary)</label>
         <input class="form-control" id="dev-logo_url" placeholder="https://res.cloudinary.com/..." />
       </div>
-
       <div class="form-group full" id="dev-logo-preview-wrap" style="display:none;">
         <label class="form-label">Logo Preview</label>
         <img id="dev-logo-preview" src="" alt="Logo preview"
              style="max-height:60px; max-width:200px; object-fit:contain; background:#111; padding:8px;" />
       </div>
-
       <div class="form-group">
         <label class="form-label">Sort Order</label>
         <input class="form-control" type="number" id="dev-sort_order" value="0" min="0" />
@@ -347,7 +374,6 @@
           <option value="false">No</option>
         </select>
       </div>
-
       <div class="full" style="display:flex; gap:10px; margin-top:8px;">
         <button type="submit" class="btn-black">Save Developer</button>
         <button type="button" class="btn-outline" onclick="closeDeveloperModal()">Cancel</button>
@@ -362,7 +388,6 @@
     <h3 id="employeeModalTitle" style="margin-bottom:1.2rem;">Add Employee</h3>
     <form id="employeeForm" class="modal-grid">
       <input type="hidden" id="emp-id" />
-
       <div class="form-group">
         <label class="form-label">First Name *</label>
         <input class="form-control" id="emp-first_name" required />
@@ -371,7 +396,6 @@
         <label class="form-label">Last Name *</label>
         <input class="form-control" id="emp-last_name" required />
       </div>
-
       <div class="form-group">
         <label class="form-label">Middle Name</label>
         <input class="form-control" id="emp-middle_name" />
@@ -380,17 +404,14 @@
         <label class="form-label">Nationality *</label>
         <input class="form-control" id="emp-nationality" required />
       </div>
-
       <div class="form-group full">
         <label class="form-label">Job Title</label>
         <input class="form-control" id="emp-job_title" />
       </div>
-
       <div class="form-group full">
         <label class="form-label">Image URL</label>
         <input class="form-control" id="emp-image_filename" placeholder="https://res.cloudinary.com/..." />
       </div>
-
       <div class="form-group">
         <label class="form-label">Email</label>
         <input class="form-control" type="email" id="emp-email" />
@@ -399,12 +420,10 @@
         <label class="form-label">Phone</label>
         <input class="form-control" id="emp-phone" />
       </div>
-
       <div class="form-group full">
         <label class="form-label">Bio</label>
         <textarea class="form-control" id="emp-bio" style="min-height:80px;"></textarea>
       </div>
-
       <div class="full" style="display:flex; gap:10px; margin-top:8px;">
         <button type="submit" class="btn-black">Save Employee</button>
         <button type="button" class="btn-outline" onclick="closeEmployeeModal()">Cancel</button>
@@ -416,7 +435,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Navigation between panels ─────────────────────────────
+  // ── Navigation ────────────────────────────────────────────
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -433,60 +452,178 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  // ── Logout ─────────────────────────────────────────────────
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
     window.location.href = '/admin/login';
   });
 
-  // ── Generic fetch helper with 401 handling ────────────────
   async function apiFetch(url, options = {}) {
     const res = await fetch(url, { credentials: 'same-origin', ...options });
-    if (res.status === 401) {
-      window.location.href = '/admin/login';
-      throw new Error('Unauthorized');
-    }
+    if (res.status === 401) { window.location.href = '/admin/login'; throw new Error('Unauthorized'); }
     return res;
   }
 
   // ============================================================
-  // PROPERTIES
+  // PROPERTIES — with featured/all sections + arrow reordering
   // ============================================================
   let properties = [];
 
+  // featured list and regular list are kept separately for ordering
+  let featuredProps = [];
+  let regularProps  = [];
+
   async function loadProperties() {
-    const res = await apiFetch('/api/properties/?is_featured=');
-    // is_featured filter empty -> ignored server side, fetch ALL incl inactive separately
-    const all = await apiFetch('/api/properties/');
-    properties = await all.json();
+    const res = await apiFetch('/api/properties/');
+    properties = await res.json();
+
+    // Sort each section by sort_order, then id as tiebreaker
+    const sorted = [...properties].sort((a, b) =>
+      (a.sort_order ?? 9999) - (b.sort_order ?? 9999) || a.id - b.id
+    );
+
+    featuredProps = sorted.filter(p => p.is_featured);
+    regularProps  = sorted.filter(p => !p.is_featured);
+
     renderProperties();
   }
 
-  function renderProperties() {
-    const tbody = document.getElementById('propertiesTableBody');
-    if (!properties.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted);">No properties yet.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = properties.map(p => `
-      <tr>
-        <td>${p.id}</td>
-        <td>${p.title || p.master_community}</td>
+  function typeLabel(t) {
+    return t === 'sale' ? 'For Sale' : t === 'rent' ? 'For Rent' : 'Off Plan';
+  }
+
+  function propRow(p, index, list, section) {
+    const isFirst = index === 0;
+    const isLast  = index === list.length - 1;
+    return `
+      <tr data-id="${p.id}" data-section="${section}">
+        <td style="color:var(--muted); font-size:0.75rem; text-align:center;">${index + 1}</td>
+        <td>
+          ${p.title || p.master_community}
+          ${p.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
+        </td>
         <td>${p.emirate}</td>
-        <td>${p.listing_type === 'sale' ? 'For Sale' : p.listing_type === 'rent' ? 'For Rent' : 'Off Plan'}</td>
+        <td>${typeLabel(p.listing_type)}</td>
         <td>AED ${Number(p.price).toLocaleString()}</td>
         <td>${p.is_active ? 'Yes' : 'No'}</td>
         <td>
           <div class="row-actions">
+            <button class="arrow-btn" title="Move up"
+              onclick="moveProperty(${p.id}, '${section}', -1)"
+              ${isFirst ? 'disabled' : ''}>↑</button>
+            <button class="arrow-btn" title="Move down"
+              onclick="moveProperty(${p.id}, '${section}', 1)"
+              ${isLast ? 'disabled' : ''}>↓</button>
+            <button class="edit-btn" onclick="toggleFeatured(${p.id})"
+              title="${p.is_featured ? 'Remove from Featured' : 'Add to Featured'}">
+              ${p.is_featured ? '★' : '☆'}
+            </button>
             <button class="edit-btn" onclick="editProperty(${p.id})">Edit</button>
             <button class="edit-btn" onclick="openImagesModal(${p.id})">Images</button>
             <button class="delete-btn" onclick="deleteProperty(${p.id})">Delete</button>
           </div>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
   }
 
+  function renderProperties() {
+    const tbody = document.getElementById('propertiesTableBody');
+    let html = '';
+
+    // ── Featured section ──────────────────────────────────────
+    html += `<tr class="section-divider">
+      <td colspan="7">★ Featured Properties — displayed on the home page</td>
+    </tr>`;
+
+    if (featuredProps.length) {
+      html += featuredProps.map((p, i) => propRow(p, i, featuredProps, 'featured')).join('');
+    } else {
+      html += `<tr><td colspan="7" style="text-align:center; color:var(--muted); font-style:italic; padding:16px 14px;">
+        No featured properties yet — click ☆ on any property below to feature it.
+      </td></tr>`;
+    }
+
+    // ── Divider ───────────────────────────────────────────────
+    html += `<tr class="section-divider">
+      <td colspan="7">All Properties — displayed on the /properties page</td>
+    </tr>`;
+
+    if (regularProps.length) {
+      html += regularProps.map((p, i) => propRow(p, i, regularProps, 'regular')).join('');
+    } else {
+      html += `<tr><td colspan="7" style="text-align:center; color:var(--muted); font-style:italic; padding:16px 14px;">
+        No regular properties.
+      </td></tr>`;
+    }
+
+    tbody.innerHTML = html;
+  }
+
+  // ── Move a property up or down within its section ─────────
+  async function moveProperty(id, section, direction) {
+    const list = section === 'featured' ? featuredProps : regularProps;
+    const idx  = list.findIndex(p => p.id === id);
+    if (idx < 0) return;
+
+    const swapIdx = idx + direction;
+    if (swapIdx < 0 || swapIdx >= list.length) return;
+
+    // Swap sort_order values between the two items
+    const a = list[idx];
+    const b = list[swapIdx];
+
+    // Optimistically swap in local array so UI feels instant
+    list[idx]     = b;
+    list[swapIdx] = a;
+
+    // Assign clean sort_order values (0,1,2...) based on new positions
+    list.forEach((p, i) => { p.sort_order = i; });
+    renderProperties();
+
+    // Persist both swapped items to the server
+    try {
+      await Promise.all([
+        apiFetch(`/api/properties/${a.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sort_order: b.sort_order }),
+        }),
+        apiFetch(`/api/properties/${b.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sort_order: a.sort_order }),
+        }),
+      ]);
+    } catch {
+      showToast('Reorder failed — reloading');
+      await loadProperties();
+    }
+  }
+
+  // ── Toggle featured / unfeatured ──────────────────────────
+  async function toggleFeatured(id) {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+
+    const newFeatured = !p.is_featured;
+    // New sort_order = end of its destination list
+    const destList = newFeatured ? featuredProps : regularProps;
+    const newOrder = destList.length;
+
+    const res = await apiFetch(`/api/properties/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_featured: newFeatured, sort_order: newOrder }),
+    });
+
+    if (res.ok) {
+      showToast(newFeatured ? '★ Added to Featured' : '☆ Removed from Featured');
+      await loadProperties();
+    } else {
+      showToast('Failed to update property');
+    }
+  }
+
+  // ── Property modal ────────────────────────────────────────
   function openPropertyModal() {
     document.getElementById('propertyForm').reset();
     document.getElementById('prop-id').value = '';
@@ -501,20 +638,20 @@
   function editProperty(id) {
     const p = properties.find(x => x.id === id);
     if (!p) return;
-    document.getElementById('prop-id').value = p.id;
-    document.getElementById('prop-title').value = p.title || '';
-    document.getElementById('prop-emirate').value = p.emirate;
-    document.getElementById('prop-listing_type').value = p.listing_type;
-    document.getElementById('prop-master_community').value = p.master_community;
-    document.getElementById('prop-sub_community').value = p.sub_community || '';
-    document.getElementById('prop-bedrooms').value = p.bedrooms;
-    document.getElementById('prop-bathrooms').value = p.bathrooms;
-    document.getElementById('prop-square_feet').value = p.square_feet;
-    document.getElementById('prop-price').value = p.price;
-    document.getElementById('prop-image_filename').value = p.image_filename || '';
-    document.getElementById('prop-description').value = p.description || '';
-    document.getElementById('prop-is_featured').value = String(p.is_featured);
-    document.getElementById('prop-is_active').value = String(p.is_active);
+    document.getElementById('prop-id').value              = p.id;
+    document.getElementById('prop-title').value           = p.title || '';
+    document.getElementById('prop-emirate').value         = p.emirate;
+    document.getElementById('prop-listing_type').value    = p.listing_type;
+    document.getElementById('prop-master_community').value= p.master_community;
+    document.getElementById('prop-sub_community').value   = p.sub_community || '';
+    document.getElementById('prop-bedrooms').value        = p.bedrooms;
+    document.getElementById('prop-bathrooms').value       = p.bathrooms;
+    document.getElementById('prop-square_feet').value     = p.square_feet;
+    document.getElementById('prop-price').value           = p.price;
+    document.getElementById('prop-image_filename').value  = p.image_filename || '';
+    document.getElementById('prop-description').value     = p.description || '';
+    document.getElementById('prop-is_featured').value     = String(p.is_featured);
+    document.getElementById('prop-is_active').value       = String(p.is_active);
     document.getElementById('propertyModalTitle').textContent = 'Edit Property';
     document.getElementById('propertyModalOverlay').classList.add('open');
   }
@@ -522,15 +659,38 @@
   async function deleteProperty(id) {
     if (!confirm('Delete this property? This cannot be undone.')) return;
     const res = await apiFetch(`/api/properties/${id}`, { method: 'DELETE' });
-    if (res.ok || res.status === 204) {
-      showToast('Property deleted');
-      loadProperties();
-    } else {
-      showToast('Failed to delete property');
-    }
+    if (res.ok || res.status === 204) { showToast('Property deleted'); loadProperties(); }
+    else showToast('Failed to delete property');
   }
 
-  // ── Property Images Manager ───────────────────────────────
+  document.getElementById('propertyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('prop-id').value;
+    const payload = {
+      title:            document.getElementById('prop-title').value || null,
+      emirate:          document.getElementById('prop-emirate').value,
+      listing_type:     document.getElementById('prop-listing_type').value,
+      master_community: document.getElementById('prop-master_community').value,
+      sub_community:    document.getElementById('prop-sub_community').value || null,
+      bedrooms:         parseInt(document.getElementById('prop-bedrooms').value),
+      bathrooms:        parseInt(document.getElementById('prop-bathrooms').value),
+      square_feet:      parseFloat(document.getElementById('prop-square_feet').value),
+      price:            parseFloat(document.getElementById('prop-price').value),
+      image_filename:   document.getElementById('prop-image_filename').value || null,
+      description:      document.getElementById('prop-description').value || null,
+      is_featured:      document.getElementById('prop-is_featured').value === 'true',
+      is_active:        document.getElementById('prop-is_active').value === 'true',
+    };
+    const res = await apiFetch(id ? `/api/properties/${id}` : '/api/properties/', {
+      method: id ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) { showToast(id ? 'Property updated' : 'Property created'); closePropertyModal(); loadProperties(); }
+    else { const err = await res.json().catch(() => ({})); showToast('Error: ' + (err.detail || 'Could not save')); }
+  });
+
+  // ── Property Images ───────────────────────────────────────
   let currentImagesPropertyId = null;
   let currentImages = [];
 
@@ -549,7 +709,6 @@
   async function loadImagesForProperty(propertyId) {
     const listEl = document.getElementById('imagesList');
     listEl.innerHTML = '<div style="color:var(--muted); font-size:0.8rem;">Loading…</div>';
-
     const res = await apiFetch(`/api/properties/${propertyId}/images/`);
     currentImages = res.ok ? await res.json() : [];
     renderImagesList();
@@ -566,7 +725,7 @@
         <img src="${img.image_url}" style="width:64px; height:48px; object-fit:cover; flex-shrink:0; background:var(--cream-dk);" onerror="this.style.opacity=0.2" />
         <span style="font-size:0.74rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${img.image_url}</span>
         <span style="font-size:0.65rem; color:var(--muted);">#${i + 1}</span>
-        <button type="button" class="delete-btn" onclick="removeImage(${img.id})">Remove</button>
+        <button type="button" class="delete-btn" onclick="removeImage(${img.id})" style="font-size:0.65rem; padding:4px 9px;">Remove</button>
       </div>
     `).join('');
   }
@@ -575,73 +734,21 @@
     const input = document.getElementById('newImageUrl');
     const url = input.value.trim();
     if (!url) return;
-
     const res = await apiFetch(`/api/properties/${currentImagesPropertyId}/images/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_url: url, sort_order: currentImages.length }),
     });
-
-    if (res.ok) {
-      input.value = '';
-      await loadImagesForProperty(currentImagesPropertyId);
-      showToast('Image added');
-    } else {
-      showToast('Failed to add image');
-    }
+    if (res.ok) { input.value = ''; await loadImagesForProperty(currentImagesPropertyId); showToast('Image added'); }
+    else showToast('Failed to add image');
   }
 
   async function removeImage(imageId) {
     if (!confirm('Remove this image?')) return;
-    const res = await apiFetch(`/api/properties/${currentImagesPropertyId}/images/${imageId}`, {
-      method: 'DELETE',
-    });
-    if (res.ok || res.status === 204) {
-      await loadImagesForProperty(currentImagesPropertyId);
-      showToast('Image removed');
-    } else {
-      showToast('Failed to remove image');
-    }
+    const res = await apiFetch(`/api/properties/${currentImagesPropertyId}/images/${imageId}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) { await loadImagesForProperty(currentImagesPropertyId); showToast('Image removed'); }
+    else showToast('Failed to remove image');
   }
-
-  document.getElementById('propertyForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('prop-id').value;
-
-    const payload = {
-      title:             document.getElementById('prop-title').value || null,
-      emirate:           document.getElementById('prop-emirate').value,
-      listing_type:      document.getElementById('prop-listing_type').value,
-      master_community:  document.getElementById('prop-master_community').value,
-      sub_community:     document.getElementById('prop-sub_community').value || null,
-      bedrooms:          parseInt(document.getElementById('prop-bedrooms').value),
-      bathrooms:         parseInt(document.getElementById('prop-bathrooms').value),
-      square_feet:       parseFloat(document.getElementById('prop-square_feet').value),
-      price:             parseFloat(document.getElementById('prop-price').value),
-      image_filename:    document.getElementById('prop-image_filename').value || null,
-      description:       document.getElementById('prop-description').value || null,
-      is_featured:       document.getElementById('prop-is_featured').value === 'true',
-      is_active:         document.getElementById('prop-is_active').value === 'true',
-    };
-
-    const url = id ? `/api/properties/${id}` : '/api/properties/';
-    const method = id ? 'PATCH' : 'POST';
-
-    const res = await apiFetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      showToast(id ? 'Property updated' : 'Property created');
-      closePropertyModal();
-      loadProperties();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      showToast('Error: ' + (err.detail || 'Could not save property'));
-    }
-  });
 
   // ============================================================
   // EMPLOYEES
@@ -690,16 +797,16 @@
   function editEmployee(id) {
     const e = employees.find(x => x.id === id);
     if (!e) return;
-    document.getElementById('emp-id').value = e.id;
-    document.getElementById('emp-first_name').value = e.first_name;
-    document.getElementById('emp-last_name').value = e.last_name;
-    document.getElementById('emp-middle_name').value = e.middle_name || '';
-    document.getElementById('emp-nationality').value = e.nationality;
-    document.getElementById('emp-job_title').value = e.job_title || '';
-    document.getElementById('emp-image_filename').value = e.image_filename || '';
-    document.getElementById('emp-email').value = e.email || '';
-    document.getElementById('emp-phone').value = e.phone || '';
-    document.getElementById('emp-bio').value = e.bio || '';
+    document.getElementById('emp-id').value            = e.id;
+    document.getElementById('emp-first_name').value    = e.first_name;
+    document.getElementById('emp-last_name').value     = e.last_name;
+    document.getElementById('emp-middle_name').value   = e.middle_name || '';
+    document.getElementById('emp-nationality').value   = e.nationality;
+    document.getElementById('emp-job_title').value     = e.job_title || '';
+    document.getElementById('emp-image_filename').value= e.image_filename || '';
+    document.getElementById('emp-email').value         = e.email || '';
+    document.getElementById('emp-phone').value         = e.phone || '';
+    document.getElementById('emp-bio').value           = e.bio || '';
     document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
     document.getElementById('employeeModalOverlay').classList.add('open');
   }
@@ -707,18 +814,13 @@
   async function deleteEmployee(id) {
     if (!confirm('Delete this employee? This cannot be undone.')) return;
     const res = await apiFetch(`/api/employees/${id}`, { method: 'DELETE' });
-    if (res.ok || res.status === 204) {
-      showToast('Employee deleted');
-      loadEmployees();
-    } else {
-      showToast('Failed to delete employee');
-    }
+    if (res.ok || res.status === 204) { showToast('Employee deleted'); loadEmployees(); }
+    else showToast('Failed to delete employee');
   }
 
   document.getElementById('employeeForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('emp-id').value;
-
     const payload = {
       first_name:     document.getElementById('emp-first_name').value,
       last_name:      document.getElementById('emp-last_name').value,
@@ -730,30 +832,14 @@
       phone:          document.getElementById('emp-phone').value || null,
       bio:            document.getElementById('emp-bio').value || null,
     };
-
-    const url = id ? `/api/employees/${id}` : '/api/employees/';
-    const method = id ? 'PATCH' : 'POST';
-
-    const res = await apiFetch(url, {
-      method,
+    const res = await apiFetch(id ? `/api/employees/${id}` : '/api/employees/', {
+      method: id ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
-    if (res.ok) {
-      showToast(id ? 'Employee updated' : 'Employee created');
-      closeEmployeeModal();
-      loadEmployees();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      showToast('Error: ' + (err.detail || 'Could not save employee'));
-    }
+    if (res.ok) { showToast(id ? 'Employee updated' : 'Employee created'); closeEmployeeModal(); loadEmployees(); }
+    else { const err = await res.json().catch(() => ({})); showToast('Error: ' + (err.detail || 'Could not save')); }
   });
-
-  // ── Init ───────────────────────────────────────────────────
-  loadProperties();
-  loadEmployees();
-  loadDevelopers();
 
   // ============================================================
   // DEVELOPERS
@@ -775,12 +861,7 @@
     tbody.innerHTML = developers.map(d => `
       <tr>
         <td>${d.id}</td>
-        <td>
-          ${d.logo_url
-            ? `<img src="${d.logo_url}" style="height:36px; max-width:100px; object-fit:contain; background:#111; padding:4px;" />`
-            : '<span style="color:var(--muted); font-size:0.75rem;">No logo</span>'
-          }
-        </td>
+        <td>${d.logo_url ? `<img src="${d.logo_url}" style="height:36px; max-width:100px; object-fit:contain; background:#111; padding:4px;" />` : '<span style="color:var(--muted); font-size:0.75rem;">No logo</span>'}</td>
         <td>${d.name}</td>
         <td>${d.sort_order}</td>
         <td>${d.is_active ? 'Yes' : 'No'}</td>
@@ -809,74 +890,49 @@
   function editDeveloper(id) {
     const d = developers.find(x => x.id === id);
     if (!d) return;
-    document.getElementById('dev-id').value = d.id;
-    document.getElementById('dev-name').value = d.name;
-    document.getElementById('dev-logo_url').value = d.logo_url || '';
+    document.getElementById('dev-id').value         = d.id;
+    document.getElementById('dev-name').value       = d.name;
+    document.getElementById('dev-logo_url').value   = d.logo_url || '';
     document.getElementById('dev-sort_order').value = d.sort_order;
-    document.getElementById('dev-is_active').value = String(d.is_active);
+    document.getElementById('dev-is_active').value  = String(d.is_active);
     const preview = document.getElementById('dev-logo-preview');
-    const previewWrap = document.getElementById('dev-logo-preview-wrap');
-    if (d.logo_url) {
-      preview.src = d.logo_url;
-      previewWrap.style.display = 'block';
-    } else {
-      previewWrap.style.display = 'none';
-    }
+    const wrap    = document.getElementById('dev-logo-preview-wrap');
+    if (d.logo_url) { preview.src = d.logo_url; wrap.style.display = 'block'; }
+    else { wrap.style.display = 'none'; }
     document.getElementById('developerModalTitle').textContent = 'Edit Developer';
     document.getElementById('developerModalOverlay').classList.add('open');
   }
 
-  // Live logo preview when URL is typed
   document.getElementById('dev-logo_url').addEventListener('input', function() {
     const wrap = document.getElementById('dev-logo-preview-wrap');
     const img  = document.getElementById('dev-logo-preview');
-    if (this.value.trim()) {
-      img.src = this.value.trim();
-      wrap.style.display = 'block';
-    } else {
-      wrap.style.display = 'none';
-    }
+    if (this.value.trim()) { img.src = this.value.trim(); wrap.style.display = 'block'; }
+    else { wrap.style.display = 'none'; }
   });
 
   async function deleteDeveloper(id) {
     if (!confirm('Delete this developer?')) return;
     const res = await apiFetch(`/api/developers/${id}`, { method: 'DELETE' });
-    if (res.ok || res.status === 204) {
-      showToast('Developer deleted');
-      loadDevelopers();
-    } else {
-      showToast('Failed to delete developer');
-    }
+    if (res.ok || res.status === 204) { showToast('Developer deleted'); loadDevelopers(); }
+    else showToast('Failed to delete developer');
   }
 
   document.getElementById('developerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('dev-id').value;
-
     const payload = {
       name:       document.getElementById('dev-name').value,
       logo_url:   document.getElementById('dev-logo_url').value || null,
       sort_order: parseInt(document.getElementById('dev-sort_order').value) || 0,
       is_active:  document.getElementById('dev-is_active').value === 'true',
     };
-
-    const url    = id ? `/api/developers/${id}` : '/api/developers/';
-    const method = id ? 'PATCH' : 'POST';
-
-    const res = await apiFetch(url, {
-      method,
+    const res = await apiFetch(id ? `/api/developers/${id}` : '/api/developers/', {
+      method: id ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
-    if (res.ok) {
-      showToast(id ? 'Developer updated' : 'Developer added');
-      closeDeveloperModal();
-      loadDevelopers();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      showToast('Error: ' + (err.detail || 'Could not save developer'));
-    }
+    if (res.ok) { showToast(id ? 'Developer updated' : 'Developer added'); closeDeveloperModal(); loadDevelopers(); }
+    else { const err = await res.json().catch(() => ({})); showToast('Error: ' + (err.detail || 'Could not save')); }
   });
 
   // ============================================================
@@ -896,57 +952,36 @@
       container.innerHTML = '<div style="color:var(--muted); font-size:0.8rem;">No settings found. Run the SQL seed script on your database.</div>';
       return;
     }
-
     container.innerHTML = siteSettings.map(s => `
       <div style="border:1px solid var(--border); padding:20px; background:var(--white);">
-        <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">
-          ${s.label || s.key}
-        </div>
-
-        ${s.value ? `
-          <img src="${s.value}" alt="${s.label}"
-               style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:var(--cream-dk);"
-               onerror="this.style.display='none'" />
-        ` : `
-          <div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">
-            No image set
-          </div>
-        `}
-
+        <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">${s.label || s.key}</div>
+        ${s.value
+          ? `<img src="${s.value}" alt="${s.label}" style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:var(--cream-dk);" onerror="this.style.display='none'" />`
+          : `<div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">No image set</div>`
+        }
         <div style="display:flex; gap:8px;">
-          <input id="setting-input-${s.key}"
-                 class="form-control"
-                 type="text"
-                 value="${s.value || ''}"
-                 placeholder="https://res.cloudinary.com/..."
-                 style="flex:1;" />
-          <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;"
-                  onclick="saveSiteImage('${s.key}')">
-            Save
-          </button>
+          <input id="setting-input-${s.key}" class="form-control" type="text" value="${s.value || ''}" placeholder="https://res.cloudinary.com/..." style="flex:1;" />
+          <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;" onclick="saveSiteImage('${s.key}')">Save</button>
         </div>
       </div>
     `).join('');
   }
 
   async function saveSiteImage(key) {
-    const input = document.getElementById(`setting-input-${key}`);
-    const value = input.value.trim();
-
+    const value = document.getElementById(`setting-input-${key}`).value.trim();
     const res = await apiFetch(`/api/settings/${key}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value: value || null }),
     });
-
-    if (res.ok) {
-      showToast('Image updated');
-      loadSiteImages();
-    } else {
-      showToast('Failed to update image');
-    }
+    if (res.ok) { showToast('Image updated'); loadSiteImages(); }
+    else showToast('Failed to update image');
   }
 
+  // ── Init ──────────────────────────────────────────────────
+  loadProperties();
+  loadEmployees();
+  loadDevelopers();
   loadSiteImages();
 </script>
 

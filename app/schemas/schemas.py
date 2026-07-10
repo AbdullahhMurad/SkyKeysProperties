@@ -61,6 +61,8 @@ class PropertyCreate(BaseModel):
     description:      Optional[str]              = None
     is_featured:      bool                       = False
     is_active:        bool                       = True
+    sort_order: int = Field(0, ge=0)
+
 
 
 class PropertyUpdate(BaseModel):
@@ -80,6 +82,8 @@ class PropertyUpdate(BaseModel):
     description:      Optional[str]              = None
     is_featured:      Optional[bool]              = None
     is_active:        Optional[bool]              = None
+    sort_order: Optional[int] = Field(None, ge=0)
+
 
 
 class PropertyRead(PropertyCreate):
