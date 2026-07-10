@@ -75,7 +75,8 @@
     <span class="section-label">Meet the Team</span>
 
     <!-- Founders / primary team members -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;">
+    <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px; align-items:start; margin-bottom:80px;"></div>
+    <!-- <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;"> -->
       {% for emp in employees %}
       <div class="founder-card reveal">
         {% if emp.image_filename %}
