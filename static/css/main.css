@@ -465,7 +465,8 @@ h5 { font-size: 0.95rem; }
   margin-bottom: 80px;
 }
 
-@media (max-width: 700px) {
+
+@media (max-width: 900px) {
   .employees-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 }
 
