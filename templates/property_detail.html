@@ -349,23 +349,21 @@
         <!-- Location details -->
         <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
           <span class="label" style="display:block; margin-bottom:1rem;">Location</span>
-          <div style="display:flex; flex-direction:column; gap:0.5rem;">
-            <div style="display:flex; gap:2rem;">
-              <div>
-                <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Emirate</div>
-                <div style="font-size:0.88rem;">{{ prop.emirate }}</div>
-              </div>
-              <div>
-                <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Community</div>
-                <div style="font-size:0.88rem;">{{ prop.master_community }}</div>
-              </div>
-              {% if prop.sub_community %}
-              <div>
-                <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Sub Community</div>
-                <div style="font-size:0.88rem;">{{ prop.sub_community }}</div>
-              </div>
-              {% endif %}
+          <div style="display:flex; gap:2rem;">
+            <div>
+              <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Emirate</div>
+              <div style="font-size:0.88rem;">{{ prop.emirate }}</div>
             </div>
+            <div>
+              <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Community</div>
+              <div style="font-size:0.88rem;">{{ prop.master_community }}</div>
+            </div>
+            {% if prop.sub_community %}
+            <div>
+              <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;">Sub Community</div>
+              <div style="font-size:0.88rem;">{{ prop.sub_community }}</div>
+            </div>
+            {% endif %}
           </div>
         </div>
 
@@ -394,7 +392,7 @@
           </div>
           <button type="submit" class="btn-black" style="width:100%; justify-content:center;">Send Enquiry</button>
           <div id="eq-success" style="display:none; font-size:0.78rem; color:var(--muted); text-align:center; padding:0.5rem;">
-            ✓ Enquiry sent. We'll be in touch shortly.
+            ✓ Enquiry saved. Redirecting you to WhatsApp…
           </div>
         </form>
 
@@ -434,6 +432,7 @@
 
 {% block extra_js %}
 <script>
+  // ── Gallery ───────────────────────────────────────────────
   const images = [
     {% for img in images %}
     "{{ img.image_url }}"{% if not loop.last %},{% endif %}
@@ -444,12 +443,8 @@
 
   function selectImage(index) {
     current = index;
-    // Update hero
     document.getElementById('heroImg').src = images[index];
-    // Update thumbs
-    document.querySelectorAll('.thumb').forEach((t, i) => {
-      t.classList.toggle('active', i === index);
-    });
+    document.querySelectorAll('.thumb').forEach((t, i) => t.classList.toggle('active', i === index));
   }
 
   function openLightbox(index) {
@@ -476,19 +471,12 @@
 
   function updateLightbox() {
     document.getElementById('lightboxImg').src = images[current];
-    document.getElementById('lightboxCounter').textContent =
-      (current + 1) + ' / ' + images.length;
-
-    document.querySelectorAll('.lightbox-thumb').forEach((t, i) => {
-      t.classList.toggle('active', i === current);
-    });
-
-    // Scroll active lightbox thumb into view
+    document.getElementById('lightboxCounter').textContent = (current + 1) + ' / ' + images.length;
+    document.querySelectorAll('.lightbox-thumb').forEach((t, i) => t.classList.toggle('active', i === current));
     const active = document.getElementById('lb-thumb-' + current);
     if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }
 
-  // Keyboard navigation
   document.addEventListener('keydown', (e) => {
     const lb = document.getElementById('lightbox');
     if (!lb.classList.contains('open')) return;
@@ -497,38 +485,75 @@
     if (e.key === 'Escape')     closeLightbox();
   });
 
-  // Click outside image to close
   document.getElementById('lightbox').addEventListener('click', function(e) {
     if (e.target === this) closeLightbox();
   });
 
-  // Enquiry form
+  // ── Enquiry form — save to DB + open WhatsApp ─────────────
+  const WHATSAPP_NUMBER = '971561851841';
+
+  // Property context passed from Jinja2
+  const PROP_TITLE    = {{ ('"' + (prop.title or prop.master_community)|replace('"', '\\"') + '"') | safe }};
+  const PROP_PRICE    = 'AED {{ "{:,.0f}".format(prop.price) }}';
+  const PROP_TYPE     = '{{ "Annual Rent" if prop.listing_type == "rent" else "For Sale" }}';
+  const PROP_BEDS     = '{{ prop.bedrooms }}';
+  const PROP_BATHS    = '{{ prop.bathrooms }}';
+  const PROP_SQFT     = '{{ "{:,.0f}".format(prop.square_feet) }}';
+  const PROP_LOCATION = '{{ prop.master_community }}{% if prop.sub_community %}, {{ prop.sub_community }}{% endif %}, {{ prop.emirate }}';
+  const PROP_URL      = window.location.href;
+
   document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true;
+
+    const btn     = e.target.querySelector('button[type="submit"]');
+    const success = document.getElementById('eq-success');
+
+    const name    = document.getElementById('eq-name').value.trim();
+    const email   = document.getElementById('eq-email').value.trim();
+    const phone   = document.getElementById('eq-phone').value.trim();
+    const message = document.getElementById('eq-msg').value.trim();
+    const subject = 'Property Enquiry – ' + PROP_TITLE;
+
+    btn.disabled    = true;
     btn.textContent = 'Sending…';
 
+    // ── 1. Save to database ──────────────────────────────────
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
+      await fetch('/api/contact/', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name:    document.getElementById('eq-name').value,
-          email:   document.getElementById('eq-email').value,
-          phone:   document.getElementById('eq-phone').value,
-          subject: 'Property Enquiry – {{ prop.title or prop.master_community }}',
-          message: document.getElementById('eq-msg').value,
-        }),
+        body: JSON.stringify({ name, email, phone, subject, message }),
       });
-      if (res.ok) {
-        e.target.reset();
-        document.getElementById('eq-success').style.display = 'block';
-      }
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Send Enquiry';
+    } catch {
+      console.warn('DB save failed, continuing to WhatsApp.');
     }
+
+    // ── 2. Build pre-filled WhatsApp message ─────────────────
+    const waText = [
+      '*New Property Enquiry – SkyKeys Properties*',
+      '',
+      '*Property:* ' + PROP_TITLE,
+      '*Price:* '    + PROP_PRICE + ' (' + PROP_TYPE + ')',
+      '*Details:* '  + PROP_BEDS + ' Beds · ' + PROP_BATHS + ' Baths · ' + PROP_SQFT + ' Sq.Ft.',
+      '*Location:* ' + PROP_LOCATION,
+      '*Listing:* '  + PROP_URL,
+      '',
+      '*From:* ' + (name  || '—'),
+      email ? '*Email:* '  + email : null,
+      phone ? '*Phone:* '  + phone : null,
+      '',
+      '*Message:*',
+      message,
+    ].filter(line => line !== null).join('\n');
+
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+
+    // ── 3. Show success banner then open WhatsApp ────────────
+    success.style.display = 'block';
+    btn.disabled    = false;
+    btn.textContent = 'Send Enquiry';
+
+    setTimeout(() => window.open(waUrl, '_blank'), 800);
   });
 </script>
 {% endblock %}
