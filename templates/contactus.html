@@ -69,7 +69,9 @@
       <div class="reveal">
         <span class="label" style="display:block; margin-bottom:1.5rem;">Send a Message</span>
 
-        <div id="formSuccess" class="form-success">Your message has been sent. We'll be in touch within 5 minutes.</div>
+        <div id="formSuccess" class="form-success">
+          ✓ &nbsp;Message saved. Redirecting you to WhatsApp…
+        </div>
         <div id="formError" class="form-error"></div>
 
         <form id="contactForm" class="contact-form" novalidate>
@@ -122,4 +124,74 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // WhatsApp business number — digits only, no spaces or dashes
+  const WHATSAPP_NUMBER = '971561851841';
+
+  document.getElementById('contactForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn      = e.target.querySelector('button[type="submit"]');
+    const success  = document.getElementById('formSuccess');
+    const errorEl  = document.getElementById('formError');
+
+    // Basic validation
+    const name    = document.getElementById('name').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const phone   = document.getElementById('phone').value.trim();
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !message) {
+      errorEl.textContent = 'Please fill in your name and message.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    errorEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    // ── 1. Save to database ──────────────────────────────────
+    try {
+      await fetch('/api/contact/', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, subject, message }),
+      });
+    } catch {
+      // Don't block WhatsApp redirect if DB save fails
+      console.warn('DB save failed, continuing to WhatsApp.');
+    }
+
+    // ── 2. Build WhatsApp message ────────────────────────────
+    const waText = [
+      `*New Enquiry – SkyKeys Properties*`,
+      ``,
+      `*Name:* ${name}`,
+      email   ? `*Email:* ${email}`   : null,
+      phone   ? `*Phone:* ${phone}`   : null,
+      `*Subject:* ${subject}`,
+      ``,
+      `*Message:*`,
+      message,
+    ].filter(line => line !== null).join('\n');
+
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+
+    // ── 3. Show success, reset form, open WhatsApp ───────────
+    success.style.display = 'block';
+    e.target.reset();
+    btn.disabled    = false;
+    btn.textContent = 'Send Message';
+
+    // Small delay so user sees the success message before leaving
+    setTimeout(() => {
+      window.open(waUrl, '_blank');
+    }, 800);
+  });
+</script>
 {% endblock %}
