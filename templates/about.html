@@ -3,11 +3,17 @@
 
 {% block content %}
 
-<!-- ── Hero image with caption ─────────────────────────────── -->
+<!-- ── Hero: image or video ────────────────────────────────── -->
 <div style="margin-top:0; padding-top:72px; position:relative; overflow:hidden;">
-  <img src="{{ settings.about_hero_image_url }}"
-       alt="SkyKeys Team"
-       style="width:100%; height:60vh; object-fit:cover; display:block;" />
+  {% if settings.about_hero_media_type == 'video' and settings.about_hero_video_url %}
+    <video autoplay muted loop playsinline
+           style="width:100%; height:60vh; object-fit:cover; display:block;"
+           src="{{ settings.about_hero_video_url }}"></video>
+  {% else %}
+    <img src="{{ settings.about_hero_image_url }}"
+         alt="SkyKeys Team"
+         style="width:100%; height:60vh; object-fit:cover; display:block;" />
+  {% endif %}
   <div style="position:absolute; bottom:32px; left:40px;">
     <h2 style="color:#fff; font-style:italic; font-size:clamp(1.6rem,3vw,2.6rem);">This is us.</h2>
   </div>
@@ -24,10 +30,10 @@
           We are a dynamic and enthusiastic Real Estate brokerage, and property management firm. Our commitment is to provide top-notch, professional services that ensure the triumph and contentment of our clients. Sky Keys Properties, headquartered in Abu Dhabi, with a presence extending to Dubai, forms a nexus that covers the UAE and various international territories.
         </p>
         <p style="color:var(--muted); font-size:0.8rem; line-height:1.8; margin-bottom:1rem;">
-           Our extensive experience spanning over a decade equips us with the know-how to expertly guide our clients through every facet of Real Estate. Our proficiency encompasses handling sales, purchases, rentals, and the meticulous management of diverse property categories, ranging from residential condos and estates to individual commercial units and entire structures.
+          Our extensive experience spanning over a decade equips us with the know-how to expertly guide our clients through every facet of Real Estate. Our proficiency encompasses handling sales, purchases, rentals, and the meticulous management of diverse property categories, ranging from residential condos and estates to individual commercial units and entire structures.
         </p>
         <p style="color:var(--muted); font-size:0.8rem; line-height:1.8;">
-         Earning the reliance of our clients stands as a priceless asset, propelling us to uphold this trust with prospective and established clients alike. Hence, we stand resolute in our core principle: We offer tangible solutions, not mere assurances.
+          Earning the reliance of our clients stands as a priceless asset, propelling us to uphold this trust with prospective and established clients alike. Hence, we stand resolute in our core principle: We offer tangible solutions, not mere assurances.
         </p>
         <div style="margin-top:2.5rem;">
           <a href="/contactus" class="btn-black">Get in Touch</a>
@@ -42,41 +48,13 @@
   </div>
 </section>
 
-<!-- ── Stats ───────────────────────────────────────────────── -->
-<!-- <div class="stats-row">
-  <div class="stat-col">
-    <span class="stat-number">570M+</span>
-    <span class="stat-label">AED Record Transaction</span>
-  </div>
-  <div class="stat-col">
-    <span class="stat-number">Community 1st</span>
-    <span class="stat-label">Luxury Family Living Specialists</span>
-  </div>
-  <div class="stat-col">
-    <span class="stat-number">Abu Dhabi</span>
-    <span class="stat-label">Across Abu Dhabi</span>
-  </div>
-</div> -->
-
-
-<!-- Team image -->
-<!-- <div style="margin-top:0; padding-top:72px; position:relative; overflow:hidden;">
-  <img src="{{ settings.about_team_image_url }}"
-       alt="SkyKeys Team"
-       style="width:100%; height:115vh; object-fit:cover; display:block;" />
-</div> -->
-
-
-
 <!-- ── Meet the team ───────────────────────────────────────── -->
 {% if employees %}
 <section class="section">
   <div class="container">
     <span class="section-label">Meet the Team</span>
 
-    <!-- Founders / primary team members -->
-   <div class="employees-grid">
-    <!-- <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; align-items: start; margin-bottom: 80px;"> -->
+    <div class="employees-grid">
       {% for emp in employees %}
       <div class="founder-card reveal">
         {% if emp.image_filename %}
@@ -119,19 +97,5 @@
   </div>
 </section>
 {% endif %}
-
-<!-- ── Dark band: work with us ─────────────────────────────── -->
-<!-- <div class="dark-band" style="padding:56px 0;">
-  <div class="container">
-    <span class="label" style="color:rgba(255,255,255,0.4); display:block; margin-bottom:1.05rem; font-size:0.46rem;">Join Us</span>
-    <h2 style="font-size:clamp(1.1rem,2.1vw,1.8rem);">Work Alongside Us</h2>
-    <p style="margin-top:0.7rem; margin-bottom:1.4rem; font-size:0.8rem;">
-      Are you a community expert or serial networker looking to transform your local knowledge into a rewarding real estate career?
-      At SkyKeys Properties, we value individuals who understand people, places, and potential.
-      Your existing network and community insights could be the foundation for exceptional success in luxury property.
-    </p>
-    <a href="/contactus" class="btn-outline" style="color:var(--white); border-color:rgba(255,255,255,0.4); font-size:0.46rem; padding:0.6rem 1.4rem;">Contact Us</a>
-  </div>
-</div> -->
 
 {% endblock %}

@@ -56,7 +56,6 @@
     .admin-table td { padding: 10px 14px; font-size: 0.82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
     .admin-table tr:last-child td { border-bottom: none; }
 
-    /* Section divider row inside the table */
     .section-divider td {
       background: var(--black);
       color: var(--white);
@@ -88,7 +87,6 @@
     .row-actions .arrow-btn:hover { border-color: var(--black); color: var(--black); }
     .row-actions .arrow-btn:disabled { opacity: 0.2; cursor: default; }
 
-    /* featured badge */
     .badge-featured {
       display: inline-block;
       font-size: 0.58rem;
@@ -104,7 +102,6 @@
 
     .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; }
 
-    /* Modal */
     .modal-overlay {
       display: none;
       position: fixed; inset: 0; z-index: 3000;
@@ -132,6 +129,28 @@
       display: none;
     }
     .toast.show { display: block; }
+
+    /* Media type toggle */
+    .media-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .media-toggle button {
+      flex: 1;
+      padding: 0.55rem;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .media-toggle button + button { border-left: 1px solid var(--border); }
+    .media-toggle button.active   { background: var(--black); color: var(--white); }
+    .media-toggle button:not(.active) { background: var(--white); color: var(--muted); }
   </style>
 </head>
 <body>
@@ -177,12 +196,7 @@
         <thead>
           <tr>
             <th style="width:36px;">Order</th>
-            <th>Title</th>
-            <th>Emirate</th>
-            <th>Type</th>
-            <th>Price</th>
-            <th>Active</th>
-            <th></th>
+            <th>Title</th><th>Emirate</th><th>Type</th><th>Price</th><th>Active</th><th></th>
           </tr>
         </thead>
         <tbody id="propertiesTableBody">
@@ -199,9 +213,7 @@
       </div>
       <table class="admin-table">
         <thead>
-          <tr>
-            <th>ID</th><th>Logo</th><th>Name</th><th>Order</th><th>Active</th><th></th>
-          </tr>
+          <tr><th>ID</th><th>Logo</th><th>Name</th><th>Order</th><th>Active</th><th></th></tr>
         </thead>
         <tbody id="developersTableBody">
           <tr><td colspan="6" style="text-align:center; color:var(--muted);">Loading…</td></tr>
@@ -217,9 +229,7 @@
       </div>
       <table class="admin-table">
         <thead>
-          <tr>
-            <th>ID</th><th>Name</th><th>Job Title</th><th>Nationality</th><th></th>
-          </tr>
+          <tr><th>ID</th><th>Name</th><th>Job Title</th><th>Nationality</th><th></th></tr>
         </thead>
         <tbody id="employeesTableBody">
           <tr><td colspan="5" style="text-align:center; color:var(--muted);">Loading…</td></tr>
@@ -230,10 +240,10 @@
     <!-- ── Site Images panel ─────────────────────────────────── -->
     <section class="panel" id="siteimages-panel">
       <div class="panel-header">
-        <h2 style="font-size:1.1rem;">Site Images</h2>
+        <h2 style="font-size:1.1rem;">Site Images &amp; Videos</h2>
       </div>
       <p style="font-size:0.82rem; color:var(--muted); margin-bottom:1.5rem;">
-        Upload images to Cloudinary, then paste the URL below to update each site image.
+        Upload images or videos to Cloudinary, then paste the URL below. Hero sections support both Image and Video.
       </p>
       <div id="siteImagesContainer" style="display:flex; flex-direction:column; gap:24px;">
         <div style="text-align:center; color:var(--muted); font-size:0.8rem;">Loading…</div>
@@ -249,12 +259,10 @@
     <h3 id="propertyModalTitle" style="margin-bottom:1.2rem;">Add Property</h3>
     <form id="propertyForm" class="modal-grid">
       <input type="hidden" id="prop-id" />
-
       <div class="form-group full">
         <label class="form-label">Title</label>
         <input class="form-control" id="prop-title" placeholder="e.g. Exclusive | Golf Course View" />
       </div>
-
       <div class="form-group">
         <label class="form-label">Emirate *</label>
         <input class="form-control" id="prop-emirate" required />
@@ -267,7 +275,6 @@
           <option value="off_plan">Off Plan</option>
         </select>
       </div>
-
       <div class="form-group">
         <label class="form-label">Master Community *</label>
         <input class="form-control" id="prop-master_community" required />
@@ -276,7 +283,6 @@
         <label class="form-label">Sub Community</label>
         <input class="form-control" id="prop-sub_community" />
       </div>
-
       <div class="form-group">
         <label class="form-label">Bedrooms *</label>
         <input class="form-control" type="number" id="prop-bedrooms" min="0" required />
@@ -285,7 +291,6 @@
         <label class="form-label">Bathrooms *</label>
         <input class="form-control" type="number" id="prop-bathrooms" min="0" required />
       </div>
-
       <div class="form-group">
         <label class="form-label">Square Feet *</label>
         <input class="form-control" type="number" step="0.01" id="prop-square_feet" required />
@@ -294,17 +299,14 @@
         <label class="form-label">Price (AED) *</label>
         <input class="form-control" type="number" step="0.01" id="prop-price" required />
       </div>
-
       <div class="form-group full">
         <label class="form-label">Image URL</label>
         <input class="form-control" id="prop-image_filename" placeholder="https://res.cloudinary.com/..." />
       </div>
-
       <div class="form-group full">
         <label class="form-label">Description</label>
         <textarea class="form-control" id="prop-description" style="min-height:80px;"></textarea>
       </div>
-
       <div class="form-group">
         <label class="form-label">Featured?</label>
         <select class="form-control" id="prop-is_featured">
@@ -319,7 +321,6 @@
           <option value="false">No</option>
         </select>
       </div>
-
       <div class="full" style="display:flex; gap:10px; margin-top:8px;">
         <button type="submit" class="btn-black">Save Property</button>
         <button type="button" class="btn-outline" onclick="closePropertyModal()">Cancel</button>
@@ -464,26 +465,18 @@
   }
 
   // ============================================================
-  // PROPERTIES — with featured/all sections + arrow reordering
+  // PROPERTIES
   // ============================================================
-  let properties = [];
-
-  // featured list and regular list are kept separately for ordering
-  let featuredProps = [];
-  let regularProps  = [];
+  let properties = [], featuredProps = [], regularProps = [];
 
   async function loadProperties() {
     const res = await apiFetch('/api/properties/');
     properties = await res.json();
-
-    // Sort each section by sort_order, then id as tiebreaker
     const sorted = [...properties].sort((a, b) =>
       (a.sort_order ?? 9999) - (b.sort_order ?? 9999) || a.id - b.id
     );
-
     featuredProps = sorted.filter(p => p.is_featured);
     regularProps  = sorted.filter(p => !p.is_featured);
-
     renderProperties();
   }
 
@@ -492,31 +485,20 @@
   }
 
   function propRow(p, index, list, section) {
-    const isFirst = index === 0;
-    const isLast  = index === list.length - 1;
+    const isFirst = index === 0, isLast = index === list.length - 1;
     return `
       <tr data-id="${p.id}" data-section="${section}">
         <td style="color:var(--muted); font-size:0.75rem; text-align:center;">${index + 1}</td>
-        <td>
-          ${p.title || p.master_community}
-          ${p.is_featured ? '<span class="badge-featured">Featured</span>' : ''}
-        </td>
+        <td>${p.title || p.master_community}${p.is_featured ? '<span class="badge-featured">Featured</span>' : ''}</td>
         <td>${p.emirate}</td>
         <td>${typeLabel(p.listing_type)}</td>
         <td>AED ${Number(p.price).toLocaleString()}</td>
         <td>${p.is_active ? 'Yes' : 'No'}</td>
         <td>
           <div class="row-actions">
-            <button class="arrow-btn" title="Move up"
-              onclick="moveProperty(${p.id}, '${section}', -1)"
-              ${isFirst ? 'disabled' : ''}>↑</button>
-            <button class="arrow-btn" title="Move down"
-              onclick="moveProperty(${p.id}, '${section}', 1)"
-              ${isLast ? 'disabled' : ''}>↓</button>
-            <button class="edit-btn" onclick="toggleFeatured(${p.id})"
-              title="${p.is_featured ? 'Remove from Featured' : 'Add to Featured'}">
-              ${p.is_featured ? '★' : '☆'}
-            </button>
+            <button class="arrow-btn" onclick="moveProperty(${p.id},'${section}',-1)" ${isFirst?'disabled':''}>↑</button>
+            <button class="arrow-btn" onclick="moveProperty(${p.id},'${section}',1)"  ${isLast ?'disabled':''}>↓</button>
+            <button class="edit-btn" onclick="toggleFeatured(${p.id})" title="${p.is_featured?'Remove from Featured':'Add to Featured'}">${p.is_featured?'★':'☆'}</button>
             <button class="edit-btn" onclick="editProperty(${p.id})">Edit</button>
             <button class="edit-btn" onclick="openImagesModal(${p.id})">Images</button>
             <button class="delete-btn" onclick="deleteProperty(${p.id})">Delete</button>
@@ -527,103 +509,48 @@
 
   function renderProperties() {
     const tbody = document.getElementById('propertiesTableBody');
-    let html = '';
-
-    // ── Featured section ──────────────────────────────────────
-    html += `<tr class="section-divider">
-      <td colspan="7">★ Featured Properties — displayed on the home page</td>
-    </tr>`;
-
-    if (featuredProps.length) {
-      html += featuredProps.map((p, i) => propRow(p, i, featuredProps, 'featured')).join('');
-    } else {
-      html += `<tr><td colspan="7" style="text-align:center; color:var(--muted); font-style:italic; padding:16px 14px;">
-        No featured properties yet — click ☆ on any property below to feature it.
-      </td></tr>`;
-    }
-
-    // ── Divider ───────────────────────────────────────────────
-    html += `<tr class="section-divider">
-      <td colspan="7">All Properties — displayed on the /properties page</td>
-    </tr>`;
-
-    if (regularProps.length) {
-      html += regularProps.map((p, i) => propRow(p, i, regularProps, 'regular')).join('');
-    } else {
-      html += `<tr><td colspan="7" style="text-align:center; color:var(--muted); font-style:italic; padding:16px 14px;">
-        No regular properties.
-      </td></tr>`;
-    }
-
+    let html = `<tr class="section-divider"><td colspan="7">★ Featured Properties — displayed on the home page</td></tr>`;
+    html += featuredProps.length
+      ? featuredProps.map((p,i) => propRow(p,i,featuredProps,'featured')).join('')
+      : `<tr><td colspan="7" style="text-align:center;color:var(--muted);font-style:italic;padding:16px 14px;">No featured properties yet — click ☆ on any property below to feature it.</td></tr>`;
+    html += `<tr class="section-divider"><td colspan="7">All Properties — displayed on the /properties page</td></tr>`;
+    html += regularProps.length
+      ? regularProps.map((p,i) => propRow(p,i,regularProps,'regular')).join('')
+      : `<tr><td colspan="7" style="text-align:center;color:var(--muted);font-style:italic;padding:16px 14px;">No regular properties.</td></tr>`;
     tbody.innerHTML = html;
   }
 
-  // ── Move a property up or down within its section ─────────
   async function moveProperty(id, section, direction) {
     const list = section === 'featured' ? featuredProps : regularProps;
-    const idx  = list.findIndex(p => p.id === id);
+    const idx = list.findIndex(p => p.id === id);
     if (idx < 0) return;
-
     const swapIdx = idx + direction;
     if (swapIdx < 0 || swapIdx >= list.length) return;
-
-    // Swap sort_order values between the two items
-    const a = list[idx];
-    const b = list[swapIdx];
-
-    // Optimistically swap in local array so UI feels instant
-    list[idx]     = b;
-    list[swapIdx] = a;
-
-    // Assign clean sort_order values (0,1,2...) based on new positions
+    const a = list[idx], b = list[swapIdx];
+    list[idx] = b; list[swapIdx] = a;
     list.forEach((p, i) => { p.sort_order = i; });
     renderProperties();
-
-    // Persist both swapped items to the server
     try {
       await Promise.all([
-        apiFetch(`/api/properties/${a.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sort_order: b.sort_order }),
-        }),
-        apiFetch(`/api/properties/${b.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sort_order: a.sort_order }),
-        }),
+        apiFetch(`/api/properties/${a.id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({sort_order: b.sort_order}) }),
+        apiFetch(`/api/properties/${b.id}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({sort_order: a.sort_order}) }),
       ]);
-    } catch {
-      showToast('Reorder failed — reloading');
-      await loadProperties();
-    }
+    } catch { showToast('Reorder failed — reloading'); await loadProperties(); }
   }
 
-  // ── Toggle featured / unfeatured ──────────────────────────
   async function toggleFeatured(id) {
     const p = properties.find(x => x.id === id);
     if (!p) return;
-
     const newFeatured = !p.is_featured;
-    // New sort_order = end of its destination list
     const destList = newFeatured ? featuredProps : regularProps;
-    const newOrder = destList.length;
-
     const res = await apiFetch(`/api/properties/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ is_featured: newFeatured, sort_order: newOrder }),
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ is_featured: newFeatured, sort_order: destList.length }),
     });
-
-    if (res.ok) {
-      showToast(newFeatured ? '★ Added to Featured' : '☆ Removed from Featured');
-      await loadProperties();
-    } else {
-      showToast('Failed to update property');
-    }
+    if (res.ok) { showToast(newFeatured ? '★ Added to Featured' : '☆ Removed from Featured'); await loadProperties(); }
+    else showToast('Failed to update property');
   }
 
-  // ── Property modal ────────────────────────────────────────
   function openPropertyModal() {
     document.getElementById('propertyForm').reset();
     document.getElementById('prop-id').value = '';
@@ -631,13 +558,10 @@
     document.getElementById('propertyModalOverlay').classList.add('open');
   }
 
-  function closePropertyModal() {
-    document.getElementById('propertyModalOverlay').classList.remove('open');
-  }
+  function closePropertyModal() { document.getElementById('propertyModalOverlay').classList.remove('open'); }
 
   function editProperty(id) {
-    const p = properties.find(x => x.id === id);
-    if (!p) return;
+    const p = properties.find(x => x.id === id); if (!p) return;
     document.getElementById('prop-id').value              = p.id;
     document.getElementById('prop-title').value           = p.title || '';
     document.getElementById('prop-emirate').value         = p.emirate;
@@ -682,17 +606,14 @@
       is_active:        document.getElementById('prop-is_active').value === 'true',
     };
     const res = await apiFetch(id ? `/api/properties/${id}` : '/api/properties/', {
-      method: id ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      method: id ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload),
     });
     if (res.ok) { showToast(id ? 'Property updated' : 'Property created'); closePropertyModal(); loadProperties(); }
-    else { const err = await res.json().catch(() => ({})); showToast('Error: ' + (err.detail || 'Could not save')); }
+    else { const err = await res.json().catch(()=>({})); showToast('Error: ' + (err.detail || 'Could not save')); }
   });
 
   // ── Property Images ───────────────────────────────────────
-  let currentImagesPropertyId = null;
-  let currentImages = [];
+  let currentImagesPropertyId = null, currentImages = [];
 
   async function openImagesModal(propertyId) {
     currentImagesPropertyId = propertyId;
@@ -716,27 +637,21 @@
 
   function renderImagesList() {
     const listEl = document.getElementById('imagesList');
-    if (!currentImages.length) {
-      listEl.innerHTML = '<div style="color:var(--muted); font-size:0.8rem;">No images added yet.</div>';
-      return;
-    }
+    if (!currentImages.length) { listEl.innerHTML = '<div style="color:var(--muted); font-size:0.8rem;">No images added yet.</div>'; return; }
     listEl.innerHTML = currentImages.map((img, i) => `
       <div style="display:flex; align-items:center; gap:10px; border:1px solid var(--border); padding:8px;">
         <img src="${img.image_url}" style="width:64px; height:48px; object-fit:cover; flex-shrink:0; background:var(--cream-dk);" onerror="this.style.opacity=0.2" />
         <span style="font-size:0.74rem; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${img.image_url}</span>
         <span style="font-size:0.65rem; color:var(--muted);">#${i + 1}</span>
         <button type="button" class="delete-btn" onclick="removeImage(${img.id})" style="font-size:0.65rem; padding:4px 9px;">Remove</button>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   async function addImage() {
     const input = document.getElementById('newImageUrl');
-    const url = input.value.trim();
-    if (!url) return;
+    const url = input.value.trim(); if (!url) return;
     const res = await apiFetch(`/api/properties/${currentImagesPropertyId}/images/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ image_url: url, sort_order: currentImages.length }),
     });
     if (res.ok) { input.value = ''; await loadImagesForProperty(currentImagesPropertyId); showToast('Image added'); }
@@ -763,24 +678,18 @@
 
   function renderEmployees() {
     const tbody = document.getElementById('employeesTableBody');
-    if (!employees.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">No employees yet.</td></tr>';
-      return;
-    }
+    if (!employees.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">No employees yet.</td></tr>'; return; }
     tbody.innerHTML = employees.map(e => `
       <tr>
         <td>${e.id}</td>
         <td>${e.first_name} ${e.last_name}</td>
         <td>${e.job_title || '—'}</td>
         <td>${e.nationality}</td>
-        <td>
-          <div class="row-actions">
-            <button class="edit-btn" onclick="editEmployee(${e.id})">Edit</button>
-            <button class="delete-btn" onclick="deleteEmployee(${e.id})">Delete</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+        <td><div class="row-actions">
+          <button class="edit-btn" onclick="editEmployee(${e.id})">Edit</button>
+          <button class="delete-btn" onclick="deleteEmployee(${e.id})">Delete</button>
+        </div></td>
+      </tr>`).join('');
   }
 
   function openEmployeeModal() {
@@ -790,13 +699,10 @@
     document.getElementById('employeeModalOverlay').classList.add('open');
   }
 
-  function closeEmployeeModal() {
-    document.getElementById('employeeModalOverlay').classList.remove('open');
-  }
+  function closeEmployeeModal() { document.getElementById('employeeModalOverlay').classList.remove('open'); }
 
   function editEmployee(id) {
-    const e = employees.find(x => x.id === id);
-    if (!e) return;
+    const e = employees.find(x => x.id === id); if (!e) return;
     document.getElementById('emp-id').value            = e.id;
     document.getElementById('emp-first_name').value    = e.first_name;
     document.getElementById('emp-last_name').value     = e.last_name;
@@ -833,12 +739,10 @@
       bio:            document.getElementById('emp-bio').value || null,
     };
     const res = await apiFetch(id ? `/api/employees/${id}` : '/api/employees/', {
-      method: id ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      method: id ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload),
     });
     if (res.ok) { showToast(id ? 'Employee updated' : 'Employee created'); closeEmployeeModal(); loadEmployees(); }
-    else { const err = await res.json().catch(() => ({})); showToast('Error: ' + (err.detail || 'Could not save')); }
+    else { const err = await res.json().catch(()=>({})); showToast('Error: ' + (err.detail || 'Could not save')); }
   });
 
   // ============================================================
@@ -854,10 +758,7 @@
 
   function renderDevelopers() {
     const tbody = document.getElementById('developersTableBody');
-    if (!developers.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--muted);">No developers yet.</td></tr>';
-      return;
-    }
+    if (!developers.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--muted);">No developers yet.</td></tr>'; return; }
     tbody.innerHTML = developers.map(d => `
       <tr>
         <td>${d.id}</td>
@@ -865,14 +766,11 @@
         <td>${d.name}</td>
         <td>${d.sort_order}</td>
         <td>${d.is_active ? 'Yes' : 'No'}</td>
-        <td>
-          <div class="row-actions">
-            <button class="edit-btn" onclick="editDeveloper(${d.id})">Edit</button>
-            <button class="delete-btn" onclick="deleteDeveloper(${d.id})">Delete</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+        <td><div class="row-actions">
+          <button class="edit-btn" onclick="editDeveloper(${d.id})">Edit</button>
+          <button class="delete-btn" onclick="deleteDeveloper(${d.id})">Delete</button>
+        </div></td>
+      </tr>`).join('');
   }
 
   function openDeveloperModal() {
@@ -883,13 +781,10 @@
     document.getElementById('developerModalOverlay').classList.add('open');
   }
 
-  function closeDeveloperModal() {
-    document.getElementById('developerModalOverlay').classList.remove('open');
-  }
+  function closeDeveloperModal() { document.getElementById('developerModalOverlay').classList.remove('open'); }
 
   function editDeveloper(id) {
-    const d = developers.find(x => x.id === id);
-    if (!d) return;
+    const d = developers.find(x => x.id === id); if (!d) return;
     document.getElementById('dev-id').value         = d.id;
     document.getElementById('dev-name').value       = d.name;
     document.getElementById('dev-logo_url').value   = d.logo_url || '';
@@ -927,23 +822,37 @@
       is_active:  document.getElementById('dev-is_active').value === 'true',
     };
     const res = await apiFetch(id ? `/api/developers/${id}` : '/api/developers/', {
-      method: id ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      method: id ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload),
     });
     if (res.ok) { showToast(id ? 'Developer updated' : 'Developer added'); closeDeveloperModal(); loadDevelopers(); }
-    else { const err = await res.json().catch(() => ({})); showToast('Error: ' + (err.detail || 'Could not save')); }
+    else { const err = await res.json().catch(()=>({})); showToast('Error: ' + (err.detail || 'Could not save')); }
   });
 
   // ============================================================
-  // SITE IMAGES
+  // SITE IMAGES & VIDEOS
   // ============================================================
   let siteSettings = [];
+
+  // Hero keys that support video in addition to image
+  const VIDEO_CAPABLE = {
+    'hero_image_url':       { typeKey: 'hero_media_type',       videoKey: 'hero_video_url' },
+    'about_hero_image_url': { typeKey: 'about_hero_media_type', videoKey: 'about_hero_video_url' },
+  };
+
+  // Keys managed inline via VIDEO_CAPABLE — never shown as standalone rows
+  const HIDDEN_KEYS = new Set([
+    'hero_media_type', 'hero_video_url',
+    'about_hero_media_type', 'about_hero_video_url',
+  ]);
 
   async function loadSiteImages() {
     const res = await apiFetch('/api/settings/');
     siteSettings = res.ok ? await res.json() : [];
     renderSiteImages();
+  }
+
+  function getSetting(key) {
+    return siteSettings.find(s => s.key === key) || { key, value: null };
   }
 
   function renderSiteImages() {
@@ -952,30 +861,94 @@
       container.innerHTML = '<div style="color:var(--muted); font-size:0.8rem;">No settings found. Run the SQL seed script on your database.</div>';
       return;
     }
-    container.innerHTML = siteSettings.map(s => `
-      <div style="border:1px solid var(--border); padding:20px; background:var(--white);">
-        <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">${s.label || s.key}</div>
-        ${s.value
-          ? `<img src="${s.value}" alt="${s.label}" style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:var(--cream-dk);" onerror="this.style.display='none'" />`
-          : `<div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">No image set</div>`
-        }
-        <div style="display:flex; gap:8px;">
-          <input id="setting-input-${s.key}" class="form-control" type="text" value="${s.value || ''}" placeholder="https://res.cloudinary.com/..." style="flex:1;" />
-          <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;" onclick="saveSiteImage('${s.key}')">Save</button>
-        </div>
-      </div>
-    `).join('');
+
+    const visible = siteSettings.filter(s => !HIDDEN_KEYS.has(s.key));
+
+    container.innerHTML = visible.map(s => {
+      const vc          = VIDEO_CAPABLE[s.key];
+      const currentType = vc ? (getSetting(vc.typeKey).value || 'image') : 'image';
+      const currentVideo= vc ? (getSetting(vc.videoKey).value || '') : '';
+
+      // ── Image panel ────────────────────────────────────────
+      const imgPreview = s.value
+        ? `<img src="${s.value}" style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:var(--cream-dk);" onerror="this.style.display='none'" />`
+        : `<div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">No image set</div>`;
+
+      const imgPanel = `
+        <div id="panel-image-${s.key}" style="display:${!vc || currentType==='image' ? 'block' : 'none'}">
+          ${imgPreview}
+          <div style="display:flex; gap:8px;">
+            <input id="setting-input-${s.key}" class="form-control" type="text"
+                   value="${s.value || ''}" placeholder="https://res.cloudinary.com/...jpg" style="flex:1;" />
+            <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;"
+                    onclick="saveSiteImage('${s.key}')">Save</button>
+          </div>
+        </div>`;
+
+      // ── Video panel (hero keys only) ───────────────────────
+      const vidPreview = currentVideo
+        ? `<video src="${currentVideo}" style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:#000;" muted controls></video>`
+        : `<div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">No video set</div>`;
+
+      const vidPanel = vc ? `
+        <div id="panel-video-${s.key}" style="display:${currentType==='video' ? 'block' : 'none'}">
+          ${vidPreview}
+          <div style="display:flex; gap:8px;">
+            <input id="setting-input-${vc.videoKey}" class="form-control" type="text"
+                   value="${currentVideo}" placeholder="https://res.cloudinary.com/...mp4" style="flex:1;" />
+            <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;"
+                    onclick="saveSiteImage('${vc.videoKey}')">Save</button>
+          </div>
+        </div>` : '';
+
+      // ── Toggle (hero keys only) ────────────────────────────
+      const toggleHtml = vc ? `
+        <div class="media-toggle" style="margin-bottom:14px;">
+          <button id="tbtn-image-${s.key}" class="${currentType==='image'?'active':''}"
+                  onclick="setMediaType('${s.key}','image')">Image</button>
+          <button id="tbtn-video-${s.key}" class="${currentType==='video'?'active':''}"
+                  onclick="setMediaType('${s.key}','video')">Video</button>
+        </div>` : '';
+
+      return `
+        <div style="border:1px solid var(--border); padding:20px; background:var(--white);">
+          <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">
+            ${s.label || s.key}
+          </div>
+          ${toggleHtml}
+          ${imgPanel}
+          ${vidPanel}
+        </div>`;
+    }).join('');
+  }
+
+  function setMediaType(imageKey, type) {
+    const vc = VIDEO_CAPABLE[imageKey]; if (!vc) return;
+
+    // Toggle panel visibility
+    document.getElementById(`panel-image-${imageKey}`).style.display = type === 'image' ? 'block' : 'none';
+    document.getElementById(`panel-video-${imageKey}`).style.display = type === 'video' ? 'block' : 'none';
+
+    // Update toggle button active class
+    document.getElementById(`tbtn-image-${imageKey}`).className = type === 'image' ? 'active' : '';
+    document.getElementById(`tbtn-video-${imageKey}`).className = type === 'video' ? 'active' : '';
+
+    // Persist to DB
+    apiFetch(`/api/settings/${vc.typeKey}`, {
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ value: type }),
+    }).then(() => showToast(`Switched to ${type}`));
   }
 
   async function saveSiteImage(key) {
-    const value = document.getElementById(`setting-input-${key}`).value.trim();
+    const input = document.getElementById(`setting-input-${key}`);
+    const value = input.value.trim();
     const res = await apiFetch(`/api/settings/${key}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ value: value || null }),
     });
-    if (res.ok) { showToast('Image updated'); loadSiteImages(); }
-    else showToast('Failed to update image');
+    if (res.ok) { showToast('Saved'); loadSiteImages(); }
+    else showToast('Failed to save');
   }
 
   // ── Init ──────────────────────────────────────────────────

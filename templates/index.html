@@ -4,7 +4,28 @@
 {% block content %}
 
 <!-- ── Hero: full-screen image/video with italic headline ──── -->
+
 <section class="hero">
+  {% if settings.hero_media_type == 'video' and settings.hero_video_url %}
+    <video class="hero-img" autoplay muted loop playsinline
+           src="{{ settings.hero_video_url }}"></video>
+  {% else %}
+    <img class="hero-img"
+         src="{{ settings.hero_image_url }}"
+         alt="Luxury property" />
+  {% endif %}
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h3>Representing exceptional properties<br>in Dubai and Abu Dhabi</h3>
+    <a href="/properties" class="hero-cta">View Portfolio</a>
+  </div>
+</section>
+
+
+
+
+
+<!-- <section class="hero">
   <img class="hero-img"
     src="{{ settings.hero_image_url }}"
     alt="Luxury villa in Dubai" />
@@ -13,7 +34,7 @@
     <h3>Representing exceptional properties<br>in Dubai and Abu Dhabi</h3>
     <a href="/properties" class="hero-cta">View Portfolio</a>
   </div>
-</section>
+</section> -->
 
 <!-- ── Intro text block ────────────────────────────────────── -->
 <div class="intro-block">
