@@ -839,10 +839,18 @@
     'about_hero_image_url': { typeKey: 'about_hero_media_type', videoKey: 'about_hero_video_url' },
   };
 
-  // Keys managed inline via VIDEO_CAPABLE — never shown as standalone rows
+  // Story section uses multiple video clips — handled separately
+  const STORY_VIDEO_KEYS = [
+    'about_story_video_1','about_story_video_2','about_story_video_3',
+    'about_story_video_4','about_story_video_5','about_story_video_6',
+  ];
+
+  // Keys managed inline — never shown as standalone rows
   const HIDDEN_KEYS = new Set([
     'hero_media_type', 'hero_video_url',
     'about_hero_media_type', 'about_hero_video_url',
+    'about_story_media_type',
+    ...STORY_VIDEO_KEYS,
   ]);
 
   async function loadSiteImages() {
@@ -920,6 +928,59 @@
           ${vidPanel}
         </div>`;
     }).join('');
+
+    // ── About Story section — special multi-clip card ─────────
+    const storyImageSetting = getSetting('about_story_image_url');
+    const storyType         = getSetting('about_story_media_type').value || 'image';
+
+    const storyImgPreview = storyImageSetting.value
+      ? `<img src="${storyImageSetting.value}" style="width:100%; max-height:180px; object-fit:cover; display:block; margin-bottom:12px; background:var(--cream-dk);" onerror="this.style.display='none'" />`
+      : `<div style="width:100%; height:80px; background:var(--cream-dk); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.78rem; margin-bottom:12px;">No image set</div>`;
+
+    const storyClipFields = STORY_VIDEO_KEYS.map((key, i) => {
+      const val = getSetting(key).value || '';
+      return `
+        <div style="margin-bottom:10px;">
+          <div style="font-size:0.6rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px;">Clip ${i+1}</div>
+          ${val ? `<video src="${val}" style="width:100%; max-height:100px; object-fit:cover; display:block; margin-bottom:6px; background:#000;" muted controls></video>` : ''}
+          <div style="display:flex; gap:8px;">
+            <input id="setting-input-${key}" class="form-control" type="text"
+                   value="${val}" placeholder="https://res.cloudinary.com/...mp4" style="flex:1; font-size:0.8rem; padding:0.6rem 0.8rem;" />
+            <button class="btn-black" style="white-space:nowrap; padding:0.6rem 1rem; font-size:0.62rem;"
+                    onclick="saveSiteImage('${key}')">Save</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const storyCard = `
+      <div style="border:1px solid var(--border); padding:20px; background:var(--white);">
+        <div style="font-size:0.62rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">
+          About Page – Story Section Image / Videos
+        </div>
+        <div class="media-toggle" style="margin-bottom:14px;">
+          <button id="tbtn-image-about_story" class="${storyType==='image'?'active':''}"
+                  onclick="setStoryMediaType('image')">Image</button>
+          <button id="tbtn-video-about_story" class="${storyType==='video'?'active':''}"
+                  onclick="setStoryMediaType('video')">Video Clips</button>
+        </div>
+        <div id="panel-image-about_story" style="display:${storyType==='image'?'block':'none'}">
+          ${storyImgPreview}
+          <div style="display:flex; gap:8px;">
+            <input id="setting-input-about_story_image_url" class="form-control" type="text"
+                   value="${storyImageSetting.value || ''}" placeholder="https://res.cloudinary.com/...jpg" style="flex:1;" />
+            <button class="btn-black" style="white-space:nowrap; padding:0.7rem 1.2rem;"
+                    onclick="saveSiteImage('about_story_image_url')">Save</button>
+          </div>
+        </div>
+        <div id="panel-video-about_story" style="display:${storyType==='video'?'block':'none'}">
+          <p style="font-size:0.75rem; color:var(--muted); margin-bottom:14px;">
+            The player will show the first 10 seconds of each clip in sequence, looping. Leave unused clips empty.
+          </p>
+          ${storyClipFields}
+        </div>
+      </div>`;
+
+    container.innerHTML += storyCard;
   }
 
   function setMediaType(imageKey, type) {
@@ -935,6 +996,17 @@
 
     // Persist to DB
     apiFetch(`/api/settings/${vc.typeKey}`, {
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ value: type }),
+    }).then(() => showToast(`Switched to ${type}`));
+  }
+
+  function setStoryMediaType(type) {
+    document.getElementById('panel-image-about_story').style.display = type === 'image' ? 'block' : 'none';
+    document.getElementById('panel-video-about_story').style.display = type === 'video' ? 'block' : 'none';
+    document.getElementById('tbtn-image-about_story').className = type === 'image' ? 'active' : '';
+    document.getElementById('tbtn-video-about_story').className = type === 'video' ? 'active' : '';
+    apiFetch('/api/settings/about_story_media_type', {
       method: 'PATCH', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ value: type }),
     }).then(() => showToast(`Switched to ${type}`));
