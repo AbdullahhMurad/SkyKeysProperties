@@ -128,17 +128,15 @@
 
 {% block extra_js %}
 <script>
-  // WhatsApp business number — digits only, no spaces or dashes
   const WHATSAPP_NUMBER = '971561851841';
 
-  document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const btn      = e.target.querySelector('button[type="submit"]');
-    const success  = document.getElementById('formSuccess');
-    const errorEl  = document.getElementById('formError');
+    const btn     = e.target.querySelector('button[type="submit"]');
+    const success = document.getElementById('formSuccess');
+    const errorEl = document.getElementById('formError');
 
-    // Basic validation
     const name    = document.getElementById('name').value.trim();
     const email   = document.getElementById('email').value.trim();
     const phone   = document.getElementById('phone').value.trim();
@@ -152,46 +150,41 @@
     }
 
     errorEl.style.display = 'none';
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = 'Sending…';
 
-    // ── 1. Save to database ──────────────────────────────────
-    try {
-      await fetch('/api/contact/', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, subject, message }),
-      });
-    } catch {
-      // Don't block WhatsApp redirect if DB save fails
-      console.warn('DB save failed, continuing to WhatsApp.');
-    }
-
-    // ── 2. Build WhatsApp message ────────────────────────────
+    // ── 1. Build WhatsApp URL synchronously before any async work ──
+    // Must happen in direct response to the tap/click for iOS Safari to allow it
     const waText = [
-      `*New Enquiry – SkyKeys Properties*`,
-      ``,
-      `*Name:* ${name}`,
-      email   ? `*Email:* ${email}`   : null,
-      phone   ? `*Phone:* ${phone}`   : null,
-      `*Subject:* ${subject}`,
-      ``,
-      `*Message:*`,
+      '*New Enquiry – SkyKeys Properties*',
+      '',
+      '*Name:* ' + name,
+      email   ? '*Email:* '   + email   : null,
+      phone   ? '*Phone:* '   + phone   : null,
+      '*Subject:* ' + subject,
+      '',
+      '*Message:*',
       message,
-    ].filter(line => line !== null).join('\n');
+    ].filter(function(line) { return line !== null; }).join('\n');
 
-    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+    const waUrl = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waText);
 
-    // ── 3. Show success, reset form, open WhatsApp ───────────
+    // ── 2. Save to DB in background — no await, does not block navigation ──
+    fetch('/api/contact/', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message }),
+    }).catch(function() { console.warn('DB save failed'); });
+
+    // ── 3. Show success, reset, navigate to WhatsApp ──
     success.style.display = 'block';
     e.target.reset();
     btn.disabled    = false;
     btn.textContent = 'Send Message';
 
-    // Small delay so user sees the success message before leaving
-    setTimeout(() => {
-      window.open(waUrl, '_blank');
-    }, 800);
+    // window.location.href works on all browsers including iOS Safari
+    // (window.open after async is blocked by Safari as a popup)
+    window.location.href = waUrl;
   });
 </script>
 {% endblock %}

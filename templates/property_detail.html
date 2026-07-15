@@ -267,14 +267,12 @@
 {% if images %}
 <div style="margin-top:0; padding-top:72px;">
 
-  <!-- Hero image -->
   <img id="heroImg"
        class="gallery-hero"
        src="{{ images[0].image_url }}"
        alt="{{ prop.title or prop.master_community }}"
        onclick="openLightbox(0)" />
 
-  <!-- Thumbnails strip -->
   {% if images|length > 1 %}
   <div class="gallery-thumbs" id="thumbStrip">
     {% for img in images %}
@@ -294,7 +292,6 @@
 <section class="section" style="padding-top: 60px;">
   <div class="container">
 
-    <!-- Breadcrumb -->
     <div class="breadcrumb">
       <a href="/properties">Properties</a>
       <span>›</span>
@@ -326,7 +323,6 @@
           {{ 'Annual Rent' if prop.listing_type == 'rent' else 'Sale Price' }}
         </span>
 
-        <!-- Specs grid -->
         <div class="detail-specs">
           <div class="detail-spec">
             <span class="detail-spec-value">{{ prop.bedrooms }}</span>
@@ -346,7 +342,6 @@
         <p class="detail-description">{{ prop.description }}</p>
         {% endif %}
 
-        <!-- Location details -->
         <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
           <span class="label" style="display:block; margin-bottom:1rem;">Location</span>
           <div style="display:flex; gap:2rem;">
@@ -433,18 +428,18 @@
 {% block extra_js %}
 <script>
   // ── Gallery ───────────────────────────────────────────────
-  const images = [
+  var images = [
     {% for img in images %}
     "{{ img.image_url }}"{% if not loop.last %},{% endif %}
     {% endfor %}
   ];
 
-  let current = 0;
+  var current = 0;
 
   function selectImage(index) {
     current = index;
     document.getElementById('heroImg').src = images[index];
-    document.querySelectorAll('.thumb').forEach((t, i) => t.classList.toggle('active', i === index));
+    document.querySelectorAll('.thumb').forEach(function(t, i) { t.classList.toggle('active', i === index); });
   }
 
   function openLightbox(index) {
@@ -472,13 +467,13 @@
   function updateLightbox() {
     document.getElementById('lightboxImg').src = images[current];
     document.getElementById('lightboxCounter').textContent = (current + 1) + ' / ' + images.length;
-    document.querySelectorAll('.lightbox-thumb').forEach((t, i) => t.classList.toggle('active', i === current));
-    const active = document.getElementById('lb-thumb-' + current);
+    document.querySelectorAll('.lightbox-thumb').forEach(function(t, i) { t.classList.toggle('active', i === current); });
+    var active = document.getElementById('lb-thumb-' + current);
     if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }
 
-  document.addEventListener('keydown', (e) => {
-    const lb = document.getElementById('lightbox');
+  document.addEventListener('keydown', function(e) {
+    var lb = document.getElementById('lightbox');
     if (!lb.classList.contains('open')) return;
     if (e.key === 'ArrowRight') shiftImage(1);
     if (e.key === 'ArrowLeft')  shiftImage(-1);
@@ -489,47 +484,35 @@
     if (e.target === this) closeLightbox();
   });
 
-  // ── Enquiry form — save to DB + open WhatsApp ─────────────
-  const WHATSAPP_NUMBER = '971561851841';
+  // ── Enquiry form ──────────────────────────────────────────
+  var WHATSAPP_NUMBER = '971561851841';
+  var PROP_TITLE    = {{ ('"' + (prop.title or prop.master_community)|replace('"', '\\"') + '"') | safe }};
+  var PROP_PRICE    = 'AED {{ "{:,.0f}".format(prop.price) }}';
+  var PROP_TYPE     = '{{ "Annual Rent" if prop.listing_type == "rent" else "For Sale" }}';
+  var PROP_BEDS     = '{{ prop.bedrooms }}';
+  var PROP_BATHS    = '{{ prop.bathrooms }}';
+  var PROP_SQFT     = '{{ "{:,.0f}".format(prop.square_feet) }}';
+  var PROP_LOCATION = '{{ prop.master_community }}{% if prop.sub_community %}, {{ prop.sub_community }}{% endif %}, {{ prop.emirate }}';
+  var PROP_URL      = window.location.href;
 
-  // Property context passed from Jinja2
-  const PROP_TITLE    = {{ ('"' + (prop.title or prop.master_community)|replace('"', '\\"') + '"') | safe }};
-  const PROP_PRICE    = 'AED {{ "{:,.0f}".format(prop.price) }}';
-  const PROP_TYPE     = '{{ "Annual Rent" if prop.listing_type == "rent" else "For Sale" }}';
-  const PROP_BEDS     = '{{ prop.bedrooms }}';
-  const PROP_BATHS    = '{{ prop.bathrooms }}';
-  const PROP_SQFT     = '{{ "{:,.0f}".format(prop.square_feet) }}';
-  const PROP_LOCATION = '{{ prop.master_community }}{% if prop.sub_community %}, {{ prop.sub_community }}{% endif %}, {{ prop.emirate }}';
-  const PROP_URL      = window.location.href;
-
-  document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
+  document.getElementById('enquiryForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const btn     = e.target.querySelector('button[type="submit"]');
-    const success = document.getElementById('eq-success');
+    var btn     = e.target.querySelector('button[type="submit"]');
+    var success = document.getElementById('eq-success');
 
-    const name    = document.getElementById('eq-name').value.trim();
-    const email   = document.getElementById('eq-email').value.trim();
-    const phone   = document.getElementById('eq-phone').value.trim();
-    const message = document.getElementById('eq-msg').value.trim();
-    const subject = 'Property Enquiry – ' + PROP_TITLE;
+    var name    = document.getElementById('eq-name').value.trim();
+    var email   = document.getElementById('eq-email').value.trim();
+    var phone   = document.getElementById('eq-phone').value.trim();
+    var message = document.getElementById('eq-msg').value.trim();
+    var subject = 'Property Enquiry – ' + PROP_TITLE;
 
     btn.disabled    = true;
     btn.textContent = 'Sending…';
 
-    // ── 1. Save to database ──────────────────────────────────
-    try {
-      await fetch('/api/contact/', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, subject, message }),
-      });
-    } catch {
-      console.warn('DB save failed, continuing to WhatsApp.');
-    }
-
-    // ── 2. Build pre-filled WhatsApp message ─────────────────
-    const waText = [
+    // ── 1. Build WhatsApp URL synchronously before any async work ──
+    // Must happen in direct response to the tap for iOS Safari to allow navigation
+    var waLines = [
       '*New Property Enquiry – SkyKeys Properties*',
       '',
       '*Property:* ' + PROP_TITLE,
@@ -538,22 +521,30 @@
       '*Location:* ' + PROP_LOCATION,
       '*Listing:* '  + PROP_URL,
       '',
-      '*From:* ' + (name  || '—'),
-      email ? '*Email:* '  + email : null,
-      phone ? '*Phone:* '  + phone : null,
+      '*From:* ' + (name || '—'),
+      email   ? '*Email:* '  + email   : null,
+      phone   ? '*Phone:* '  + phone   : null,
       '',
       '*Message:*',
       message,
-    ].filter(line => line !== null).join('\n');
+    ].filter(function(line) { return line !== null; });
 
-    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+    var waUrl = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waLines.join('\n'));
 
-    // ── 3. Show success banner then open WhatsApp ────────────
+    // ── 2. Save to DB in background — no await, does not block navigation ──
+    fetch('/api/contact/', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message }),
+    }).catch(function() { console.warn('DB save failed'); });
+
+    // ── 3. Show success and navigate immediately ──
     success.style.display = 'block';
     btn.disabled    = false;
     btn.textContent = 'Send Enquiry';
 
-    setTimeout(() => window.open(waUrl, '_blank'), 800);
+    // window.location.href works on iOS Safari — window.open after async is blocked
+    window.location.href = waUrl;
   });
 </script>
 {% endblock %}
