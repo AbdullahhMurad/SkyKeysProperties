@@ -171,3 +171,14 @@ def contact_page(request: Request, db: Session = Depends(get_db)):
         "year":      datetime.now().year,
         "cache_version": CACHE_VERSION,
     })
+
+# ---------------------------------------------------------------------------
+# Terms & Conditions  /terms-and-conditions
+# ---------------------------------------------------------------------------
+@router.get("/terms-and-conditions", response_class=HTMLResponse)
+def terms_and_conditions_page(request: Request):
+    return templates.TemplateResponse("terms_and_conditions.html", {
+        "request": request,
+        "year": datetime.now().year,
+        "cache_version": CACHE_VERSION,
+    })

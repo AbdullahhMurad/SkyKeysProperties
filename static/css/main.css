@@ -30,6 +30,13 @@
   --transition: 0.2s ease;
 }
 
+
+.legal-section { padding-top: 64px; }
+.legal-content { max-width: 900px; color: var(--muted); font-size: 0.88rem; line-height: 1.85; }
+.legal-content p { margin-bottom: 1rem; }
+.legal-content h2 { margin: 2.5rem 0 0.8rem; color: var(--blue); font-size: 1.2rem; font-weight: 500; }
+.legal-content ul { margin: 0 0 1rem 1.3rem; }
+.legal-content li { padding-left: 0.25rem; }
 html { scroll-behavior: smooth; }
 
 body {
